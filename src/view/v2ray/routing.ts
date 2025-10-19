@@ -62,6 +62,7 @@ return L.view.extend<SectionItem[][]>({
       _("Balancers"),
       _("Select routing balancers to use")
     );
+    o.value("none", _("None"));
     for (const s of routingBalancers) {
       o.value(s.value, s.caption);
     }
