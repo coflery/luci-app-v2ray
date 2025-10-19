@@ -42,25 +42,19 @@ return L.view.extend<[string, string]>({
       E(
         "p",
         _("Source: %s").format(
-          '<a href="https://github.com/kuoruan/luci-app-v2ray" target="_blank">https://github.com/kuoruan/luci-app-v2ray</a>'
+          '<a href="https://github.com/coflery/luci-app-v2ray" target="_blank">https://github.com/coflery/luci-app-v2ray</a>'
         )
       ),
       E(
         "p",
         _("Latest: %s").format(
-          '<a href="https://github.com/kuoruan/luci-app-v2ray/releases/latest" target="_blank">https://github.com/kuoruan/luci-app-v2ray/releases/latest</a>'
+          '<a href="https://github.com/coflery/luci-app-v2ray/releases/latest" target="_blank">https://github.com/coflery/luci-app-v2ray/releases/latest</a>'
         )
       ),
       E(
         "p",
         _("Report Bugs: %s").format(
-          '<a href="https://github.com/kuoruan/luci-app-v2ray/issues" target="_blank">https://github.com/kuoruan/luci-app-v2ray/issues</a>'
-        )
-      ),
-      E(
-        "p",
-        _("Donate: %s").format(
-          '<a href="https://blog.kuoruan.com/donate" target="_blank">https://blog.kuoruan.com/donate</a>'
+          '<a href="https://github.com/coflery/luci-app-v2ray/issues" target="_blank">https://github.com/coflery/luci-app-v2ray/issues</a>'
         )
       ),
       E("p", _("Current Config File: %s").format(configFile)),
