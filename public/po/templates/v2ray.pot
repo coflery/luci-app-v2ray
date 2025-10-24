@@ -13,6 +13,14 @@ msgstr ""
 msgid "Enabled DNS log"
 msgstr ""
 
+#: package/htdocs/luci-static/resources/view/v2ray/inbound.js:398
+msgid "Version"
+msgstr ""
+
+#: package/htdocs/luci-static/resources/view/v2ray/inbound.js:399
+msgid "metadata only"
+msgstr ""
+
 #: package/htdocs/luci-static/resources/view/v2ray/inbound.js:271
 #: package/htdocs/luci-static/resources/view/v2ray/inbound.js:286
 #: package/htdocs/luci-static/resources/view/v2ray/inbound.js:335

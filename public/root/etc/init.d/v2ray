@@ -260,6 +260,7 @@ inbound_section_validate() {
 		's_shadowsocks_ota:bool:0' \
 		's_shadowsocks_network:list(or("tcp", "udp")):tcp' \
 		's_socks_auth:or("noauth", "password")' \
+		's_socks_version:or("4", "4a", "5")' \
 		's_socks_account_user:string' \
 		's_socks_account_pass:string' \
 		's_socks_udp:bool:0' \
@@ -313,7 +314,8 @@ inbound_section_validate() {
 		'tag:string' \
 		'sniffing_enabled:bool:0' \
 		'routeOnly_enabled:bool:0' \
-		'sniffing_dest_override:list(or("http", "tls"))' \
+		'sniffing_dest_override:list(or("http", "tls", "fakedns", "fakedns+others"))' \
+		'metadata_only:bool:0' \
 		'allocate_strategy:or("always", "random")' \
 		'allocate_refresh:uinteger' \
 		'allocate_concurrency:uinteger'
@@ -1229,6 +1231,9 @@ add_inbound_setting() {
 				json_close_array # accounts
 			fi
 
+			test -n "$s_socks_version" &&
+				json_add_string "version" "$s_socks_version"
+
 			json_add_boolean "udp" "$s_socks_udp"
 
 			test -n "$s_socks_ip" &&
@@ -1530,6 +1535,9 @@ add_inbound_setting() {
 			json_add_string "" "$d"
 		done
 		json_close_array # destOverride
+	fi
+	if [ "x$metadata_only" = "x1" ]; then
+		json_add_boolean "metadataOnly" "$metadata_only"
 	fi
 
 	json_close_object # sniffing
