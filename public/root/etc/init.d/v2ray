@@ -337,6 +337,9 @@ outbound_section_validate() {
 		's_socks_account_user:string' \
 		's_socks_account_pass:string' \
 		's_socks_user_level:uinteger' \
+		's_trojan_address:host' \
+		's_trojan_port:port' \
+		's_trojan_password:string' \
 		's_vmess_address:host' \
 		's_vmess_port:port' \
 		's_vmess_user_id:string' \
@@ -1621,6 +1624,25 @@ add_outbound_setting() {
 
 			json_close_array # servers
 			json_close_object # settings
+			;;
+		"trojan")
+			json_add_object "settings"
+			json_add_array "servers"
+			json_add_object ""
+			json_add_string "address" "$s_trojan_address"
+			json_add_int "port" "$s_trojan_port"
+			json_add_string "password" "$s_trojan_password"
+			if [ "$ss_security" = "tls" ] && [ "$s_xtls_flow" != "none" ]; then
+				if [ "$ss_network" = "tcp" ] || [ "$ss_network" = "kcp" ] || [ "$ss_network" = "domainsocket" ]; then
+					if [ -n "$s_xtls_flow" ]; then
+						json_add_string "flow" "$s_xtls_flow"
+					fi
+				fi
+			fi
+
+			json_close_object
+			json_close_array
+			json_close_object
 			;;
 		"vless")
 			json_add_object "settings"
