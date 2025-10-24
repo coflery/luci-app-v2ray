@@ -58,6 +58,7 @@ return L.view.extend<string[]>({
     o.value("shadowsocks", "Shadowsocks");
     o.value("socks", "Socks");
     o.value("vmess", "VMess");
+    // o.value("vless", "VLESS");
 
     // Settings - Dokodemo-door
     o = s.taboption(
@@ -433,6 +434,56 @@ return L.view.extend<string[]>({
     );
     o.modalonly = true;
     o.depends("protocol", "vmess");
+
+    // Settings - VLESS
+    o = s.taboption(
+      "general",
+      form.Value,
+      "s_vless_address",
+      "%s - %s".format("VLESS", _("Address"))
+    );
+    o.modalonly = true;
+    o.depends("protocol", "vless");
+    o.datatype = "host";
+
+    o = s.taboption(
+      "general",
+      form.Value,
+      "s_vless_port",
+      "%s - %s".format("VLESS", _("Port"))
+    );
+    o.modalonly = true;
+    o.depends("protocol", "vless");
+    o.datatype = "port";
+
+    o = s.taboption(
+      "general",
+      form.Value,
+      "s_vless_user_id",
+      "%s - %s".format("VLESS", _("User ID"))
+    );
+    o.modalonly = true;
+    o.depends("protocol", "vless");
+
+    o = s.taboption(
+      "general",
+      form.Value,
+      "s_vless_user_level",
+      "%s - %s".format("VLESS", _("User level"))
+    );
+    o.modalonly = true;
+    o.depends("protocol", "vless");
+    o.datatype = "uinteger";
+
+    o = s.taboption(
+      "general",
+      form.ListValue,
+      "s_vless_user_encryption",
+      "%s - %s".format("VLESS", _("Encryption"))
+    );
+    o.modalonly = true;
+    o.depends("protocol", "vless");
+    o.value("none", "none");
 
     /** Stream Settings  **/
     o = s.taboption("stream", form.ListValue, "ss_network", _("Network"));

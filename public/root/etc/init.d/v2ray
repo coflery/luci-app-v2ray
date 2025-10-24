@@ -343,6 +343,11 @@ outbound_section_validate() {
 		's_vmess_user_alter_id:and(uinteger, max(65535))' \
 		's_vmess_user_security:or("auto", "aes-128-gcm", "chacha20-poly1305", "none")' \
 		's_vmess_user_level:uinteger' \
+		's_vless_address:host' \
+		's_vless_port:port' \
+		's_vless_user_id:string' \
+		's_vless_user_level:uinteger' \
+		's_vless_user_encryption:or("none")' \
 		'ss_network:or("tcp", "kcp", "ws", "http", "domainsocket", "quic")' \
 		'ss_security:or("none", "tls")' \
 		'ss_tls_server_name:host' \
@@ -1615,6 +1620,29 @@ add_outbound_setting() {
 			json_close_object
 
 			json_close_array # servers
+			json_close_object # settings
+			;;
+		"vless")
+			json_add_object "settings"
+			json_add_array "vnext"
+			json_add_object ""
+			json_add_string "address" "$s_vless_address"
+			append_server_address "$s_vless_address"
+
+			json_add_int "port" "$s_vless_port"
+
+			json_add_array "users"
+			json_add_object ""
+			json_add_string "id" "$s_vless_user_id"
+			test -n "$s_vless_user_level" &&
+				json_add_int "level" "$s_vless_user_level"
+			json_add_string "encryption" "$s_vless_user_encryption"
+			json_close_object
+			json_close_array # users
+
+			json_close_object
+
+			json_close_array # vnext
 			json_close_object # settings
 			;;
 		"vmess")
