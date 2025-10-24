@@ -1331,3 +1331,27 @@ msgstr "wget: 不支持 SSL, 请安装 %s 或 %s。"
 
 #~ msgid "Updating..."
 #~ msgstr "更新中..."
+
+#: package/htdocs/luci-static/resources/view/v2ray/observatory.ts:99
+msgid "Observatory"
+msgstr "连接观测"
+
+#: package/htdocs/luci-static/resources/view/v2ray/observatory.ts:100
+msgid "ProbeURL"
+msgstr "检测地址"
+
+#: package/htdocs/luci-static/resources/view/v2ray/observatory.ts:101
+msgid "ProbeInterval"
+msgstr "探测间隔"
+
+#: package/htdocs/luci-static/resources/view/v2ray/observatory.ts:102
+msgid "SubjectSelector"
+msgstr "出站标识前缀"
+
+#: package/htdocs/luci-static/resources/view/v2ray/observatory.ts:103
+msgid "empty use the built-in value"
+msgstr "留空使用内建测试地址"
+
+#: package/htdocs/luci-static/resources/view/v2ray/observatory.ts:103
+msgid "A valid URL, it will be get request to testing. eg: <code>%s</code>."
+msgstr "一个有效的网址。 通过GET请求进行测试。例如 <code>%s</code>"
