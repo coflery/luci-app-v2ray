@@ -9,6 +9,51 @@ msgstr "必须设置 %s"
 msgid "<code>transport</code> field in top level configuration, JSON string"
 msgstr "配置文件中的 <code>transport</code> 项，JSON 字符串"
 
+#: package/htdocs/luci-static/resources/view/v2ray/main.js:96
+msgid "Enabled DNS log"
+msgstr "开启DNS查询日志"
+
+#: package/htdocs/luci-static/resources/view/v2ray/inbound.js:398
+msgid "Version"
+msgstr "版本"
+
+#: package/htdocs/luci-static/resources/view/v2ray/inbound.js:399
+msgid "metadata only"
+msgstr "仅使用元数据推断"
+
+#: package/htdocs/luci-static/resources/view/v2ray/outbound.js:560
+msgid "Reject Unknown SNI"
+msgstr "拒绝未知的SNI"
+
+#: package/htdocs/luci-static/resources/view/v2ray/outbound.js:498
+msgid "Service name"
+msgstr "服务名称"
+
+#: package/htdocs/luci-static/resources/view/v2ray/outbound.js:497
+msgid "Multi mode"
+msgstr "多模式"
+
+#: package/htdocs/luci-static/resources/view/v2ray/outbound.js:496
+msgid "Idle timeout"
+msgstr "空闲超时"
+
+#: package/htdocs/luci-static/resources/view/v2ray/outbound.js:475
+msgid "Health check timeout"
+msgstr "健康检查超时"
+
+#: package/htdocs/luci-static/resources/view/v2ray/outbound.js:473
+msgid "Permit without stream"
+msgstr "无流许可"
+
+#: package/htdocs/luci-static/resources/view/v2ray/outbound.js:472
+msgid "Initial windows size"
+msgstr "初始窗口大小"
+
+#: package/htdocs/luci-static/resources/view/v2ray/inbound.js:400
+#: package/htdocs/luci-static/resources/view/v2ray/outbound.js:500
+msgid "xTLS Flow"
+msgstr "xTLS流控"
+
 #: package/htdocs/luci-static/resources/view/v2ray/inbound.js:271
 #: package/htdocs/luci-static/resources/view/v2ray/inbound.js:286
 #: package/htdocs/luci-static/resources/view/v2ray/inbound.js:335
@@ -37,6 +82,30 @@ msgstr "一个用于构建网络代理的平台"
 #: package/htdocs/luci-static/resources/view/v2ray/transparent-proxy.js:168
 msgid "APNIC delegated mirror"
 msgstr "APNIC 分配列表镜像"
+
+#: package/htdocs/luci-static/resources/view/v2ray/dns.js:28
+msgid "Can be configured as a non-private IP address"
+msgstr "可用配置为一个非私有IP地址"
+
+#: package/htdocs/luci-static/resources/view/v2ray/dns.js:42
+msgid "Disable Cache"
+msgstr "禁用缓存"
+
+#: package/htdocs/luci-static/resources/view/v2ray/dns.js:45
+msgid "Disable Fallback"
+msgstr "禁用fallback查询"
+
+#: package/htdocs/luci-static/resources/view/v2ray/dns.js:46
+msgid "Disable Fallback If Match"
+msgstr "优先匹配列表fallback"
+
+#: package/htdocs/luci-static/resources/view/v2ray/dns.js:48
+msgid "Skip Fallback"
+msgstr "跳过Fallback查询"
+
+#: package/htdocs/luci-static/resources/view/v2ray/dns.js:50
+msgid "Query Strategy"
+msgstr "查询策略"
 
 #: package/htdocs/luci-static/resources/view/v2ray/about.js:27
 #: package/luasrc/controller/v2ray.lua:31
@@ -74,6 +143,10 @@ msgstr "在这里添加策略等级"
 #: package/htdocs/luci-static/resources/view/v2ray/routing.js:77
 msgid "Add routing balancers here"
 msgstr "在这里添加路由负载均衡器"
+
+#: package/htdocs/luci-static/resources/view/v2ray/routing.js:78
+msgid "Balancer strategy"
+msgstr "负载均衡策略"
 
 #: package/htdocs/luci-static/resources/view/v2ray/routing.js:42
 msgid "Add routing rules here"
@@ -165,10 +238,6 @@ msgstr "缓存大小"
 msgid "CHNRoute"
 msgstr ""
 
-#: package/htdocs/luci-static/resources/view/v2ray/transparent-proxy.js:109
-msgid "CHNRoute list updated."
-msgstr "CHNRoute 列表已更新。"
-
 #: package/htdocs/luci-static/resources/view/v2ray/transparent-proxy.js:165
 msgid "CN Direct"
 msgstr "直连 CN"
@@ -191,9 +260,14 @@ msgstr "证书用途"
 msgid "Client ID"
 msgstr "用户 ID"
 
-#: package/htdocs/luci-static/resources/view/v2ray/dns.js:29
+#: package/htdocs/luci-static/resources/view/v2ray/dns.js:39
 msgid "Client IP"
-msgstr "系统 IP 地址"
+msgstr "客户端IP"
+
+#: package/htdocs/luci-static/resources/view/v2ray/inbound.js:188
+#: package/htdocs/luci-static/resources/view/v2ray/outbound.js:188
+msgid "Use xTLS flow"
+msgstr "使用xTLS流控"
 
 #: package/htdocs/luci-static/resources/view/v2ray/inbound.js:185
 msgid "Client User level"
@@ -311,6 +385,14 @@ msgstr "禁用系统自带的 CA 证书"
 msgid "Dismiss"
 msgstr "取消"
 
+#: package/htdocs/luci-static/resources/view/v2ray/outbound.js:157
+msgid "min TLS version"
+msgstr "最小TLS版本"
+
+#: package/htdocs/luci-static/resources/view/v2ray/outbound.js:158
+msgid "max TLS version"
+msgstr "最高TLS版本"
+
 #: package/htdocs/luci-static/resources/view/v2ray/routing.js:51
 msgid "Domain"
 msgstr "域名"
@@ -318,6 +400,10 @@ msgstr "域名"
 #: package/htdocs/luci-static/resources/view/v2ray/routing.js:27
 msgid "Domain resolution strategy"
 msgstr "域名解析策略"
+
+#: package/htdocs/luci-static/resources/view/v2ray/routing.js:28
+msgid "Domain name matching algorithm"
+msgstr "域名匹配算法"
 
 #: package/htdocs/luci-static/resources/view/v2ray/outbound.js:225
 msgid "Domain strategy"
@@ -390,16 +476,12 @@ msgid "Extra proxy list"
 msgstr "额外的代理列表"
 
 #: package/htdocs/luci-static/resources/view/v2ray/transparent-proxy.js:76
-msgid "Failed to decode GFWList."
-msgstr "解码 GFWList 失败。"
-
-#: package/htdocs/luci-static/resources/view/v2ray/transparent-proxy.js:117
-msgid "Failed to fetch CHNRoute list."
-msgstr "无法获取 CHNRoute 列表。"
+msgid "Failed to decode data."
+msgstr "数据解码失败。"
 
 #: package/htdocs/luci-static/resources/view/v2ray/transparent-proxy.js:79
-msgid "Failed to fetch GFWList."
-msgstr "无法获取 GFWList。"
+msgid "Failed to fetch data."
+msgstr "无法获取数据"
 
 #: package/htdocs/luci-static/resources/view/v2ray/about.js:29
 msgid "Failed to open file."
@@ -435,8 +517,8 @@ msgid "GFWList mirror"
 msgstr "GFWList 镜像"
 
 #: package/htdocs/luci-static/resources/view/v2ray/transparent-proxy.js:68
-msgid "GFWList updated."
-msgstr "GFWList 已更新"
+msgid "%s update completed"
+msgstr "%s 更新完毕"
 
 #: package/htdocs/luci-static/resources/view/v2ray/inbound.js:35
 #: package/htdocs/luci-static/resources/view/v2ray/outbound.js:185
@@ -553,6 +635,7 @@ msgstr "已导入 %d 条链接。"
 msgid "Inbound"
 msgstr "入站连接"
 
+#: package/htdocs/luci-static/resources/view/v2ray/outbound.js:65
 #: package/htdocs/luci-static/resources/view/v2ray/routing.js:65
 msgid "Inbound tag"
 msgstr "入站连接标识"
@@ -980,6 +1063,10 @@ msgstr "使用 TProxy 来设置转发规则。"
 msgid "Sniffing"
 msgstr "流量探测"
 
+#: package/htdocs/luci-static/resources/view/v2ray/inbound.js:384
+msgid "routeOnly"
+msgstr "仅作用于路由"
+
 #: package/htdocs/luci-static/resources/view/v2ray/inbound.js:369
 #: package/htdocs/luci-static/resources/view/v2ray/inbound.js:374
 #: package/htdocs/luci-static/resources/view/v2ray/outbound.js:495
@@ -1022,7 +1109,7 @@ msgstr "端口分配策略"
 #: package/htdocs/luci-static/resources/view/v2ray/inbound.js:36
 #: package/htdocs/luci-static/resources/view/v2ray/outbound.js:186
 msgid "Stream Settings"
-msgstr ""
+msgstr "数据流设置"
 
 #: package/htdocs/luci-static/resources/view/v2ray/policy.js:35
 #: package/htdocs/luci-static/resources/view/v2ray/policy.js:36
@@ -1307,17 +1394,11 @@ msgstr "wget: 不支持 SSL, 请安装 %s 或 %s。"
 #~ msgid "Stream Network"
 #~ msgstr "数据流网络"
 
-#~ msgid "Stream settings"
-#~ msgstr "底层传输配置"
-
 #~ msgid "Submit"
 #~ msgstr "提交"
 
 #~ msgid "Total: %s, Date: %s"
 #~ msgstr "总共：%s，日期：%s"
-
-#~ msgid "Transport settings is required."
-#~ msgstr "底层传输配置是必填项。"
 
 #~ msgid "Unsupported Link"
 #~ msgstr "不支持的链接"
@@ -1327,3 +1408,27 @@ msgstr "wget: 不支持 SSL, 请安装 %s 或 %s。"
 
 #~ msgid "Updating..."
 #~ msgstr "更新中..."
+
+#: package/htdocs/luci-static/resources/view/v2ray/observatory.ts:99
+msgid "Observatory"
+msgstr "连接观测"
+
+#: package/htdocs/luci-static/resources/view/v2ray/observatory.ts:100
+msgid "ProbeURL"
+msgstr "检测地址"
+
+#: package/htdocs/luci-static/resources/view/v2ray/observatory.ts:101
+msgid "ProbeInterval"
+msgstr "探测间隔"
+
+#: package/htdocs/luci-static/resources/view/v2ray/observatory.ts:102
+msgid "SubjectSelector"
+msgstr "出站标识前缀"
+
+#: package/htdocs/luci-static/resources/view/v2ray/observatory.ts:103
+msgid "empty use the built-in value"
+msgstr "留空使用内建测试地址"
+
+#: package/htdocs/luci-static/resources/view/v2ray/observatory.ts:103
+msgid "A valid URL, it will be get request to testing. eg: <code>%s</code>."
+msgstr "一个有效的网址。 通过GET请求进行测试。例如 <code>%s</code>"
