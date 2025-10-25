@@ -225,10 +225,6 @@ msgstr "缓存大小"
 msgid "CHNRoute"
 msgstr ""
 
-#: package/htdocs/luci-static/resources/view/v2ray/transparent-proxy.js:109
-msgid "CHNRoute list updated."
-msgstr "CHNRoute 列表已更新。"
-
 #: package/htdocs/luci-static/resources/view/v2ray/transparent-proxy.js:165
 msgid "CN Direct"
 msgstr "直连 CN"
@@ -450,16 +446,12 @@ msgid "Extra proxy list"
 msgstr "额外的代理列表"
 
 #: package/htdocs/luci-static/resources/view/v2ray/transparent-proxy.js:76
-msgid "Failed to decode GFWList."
-msgstr "解码 GFWList 失败。"
-
-#: package/htdocs/luci-static/resources/view/v2ray/transparent-proxy.js:117
-msgid "Failed to fetch CHNRoute list."
-msgstr "无法获取 CHNRoute 列表。"
+msgid "Failed to decode data."
+msgstr "数据解码失败。"
 
 #: package/htdocs/luci-static/resources/view/v2ray/transparent-proxy.js:79
-msgid "Failed to fetch GFWList."
-msgstr "无法获取 GFWList。"
+msgid "Failed to fetch data."
+msgstr "无法获取数据"
 
 #: package/htdocs/luci-static/resources/view/v2ray/about.js:29
 msgid "Failed to open file."
@@ -495,8 +487,8 @@ msgid "GFWList mirror"
 msgstr "GFWList 镜像"
 
 #: package/htdocs/luci-static/resources/view/v2ray/transparent-proxy.js:68
-msgid "GFWList updated."
-msgstr "GFWList 已更新"
+msgid "%s update completed"
+msgstr "%s 更新完毕"
 
 #: package/htdocs/luci-static/resources/view/v2ray/inbound.js:35
 #: package/htdocs/luci-static/resources/view/v2ray/outbound.js:185
