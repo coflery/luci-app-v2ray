@@ -74,6 +74,30 @@ msgstr "一个用于构建网络代理的平台"
 msgid "APNIC delegated mirror"
 msgstr "APNIC 分配列表镜像"
 
+#: package/htdocs/luci-static/resources/view/v2ray/dns.js:28
+msgid "Can be configured as a non-private IP address"
+msgstr "可用配置为一个非私有IP地址"
+
+#: package/htdocs/luci-static/resources/view/v2ray/dns.js:42
+msgid "Disable Cache"
+msgstr "禁用缓存"
+
+#: package/htdocs/luci-static/resources/view/v2ray/dns.js:45
+msgid "Disable Fallback"
+msgstr "禁用fallback查询"
+
+#: package/htdocs/luci-static/resources/view/v2ray/dns.js:46
+msgid "Disable Fallback If Match"
+msgstr "优先匹配列表fallback"
+
+#: package/htdocs/luci-static/resources/view/v2ray/dns.js:48
+msgid "Skip Fallback"
+msgstr "跳过Fallback查询"
+
+#: package/htdocs/luci-static/resources/view/v2ray/dns.js:50
+msgid "Query Strategy"
+msgstr "查询策略"
+
 #: package/htdocs/luci-static/resources/view/v2ray/about.js:27
 #: package/luasrc/controller/v2ray.lua:31
 #: package/root/usr/share/luci/menu.d/luci-app-v2ray.json:82
@@ -227,9 +251,9 @@ msgstr "证书用途"
 msgid "Client ID"
 msgstr "用户 ID"
 
-#: package/htdocs/luci-static/resources/view/v2ray/dns.js:29
+#: package/htdocs/luci-static/resources/view/v2ray/dns.js:39
 msgid "Client IP"
-msgstr "系统 IP 地址"
+msgstr "客户端IP"
 
 #: package/htdocs/luci-static/resources/view/v2ray/inbound.js:185
 msgid "Client User level"

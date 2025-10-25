@@ -155,6 +155,10 @@ v2ray_section_validate() {
 dns_section_validate() {
 	uci_validate_section "$NAME" "dns" "$1" \
 		'enabled:bool:0' \
+		'disable_cache:bool:0' \
+		'disable_fallback:bool:0' \
+		'disable_fallback_if_match:bool:0' \
+		'query_strategy:or("UseIP", "UseIPv4", "UseIPv6")' \
 		'tag:string' \
 		'client_ip:ipaddr' \
 		'hosts:list(string)' \
@@ -166,7 +170,9 @@ dns_server_section_validate() {
 		'address:string' \
 		'port:port' \
 		'domains:list(string)' \
-		'expect_ips:list(string)'
+		'expect_ips:list(string)' \
+		'skip_fallback:bool:0' \
+		'client_ip:ipaddr'
 }
 
 observatory_section_validate() {
@@ -745,7 +751,14 @@ add_dns_settings() {
 	fi
 
 	json_add_object "dns"
-
+	test -n "$disable_cache" &&
+		json_add_boolean "disableCache" "$disable_cache"
+	test -n "$disable_fallback" &&
+		json_add_boolean "disableFallback" "$disable_fallback"
+	test -n "$disable_fallback_if_match" &&
+		json_add_boolean "disableFallbackIfMatch" "$disable_fallback_if_match"
+	test -n "$query_strategy" &&
+		json_add_string "queryStrategy" "$query_strategy"
 	test -n "$tag" &&
 		json_add_string "tag" "$tag"
 	test -n "$client_ip" &&
@@ -819,6 +832,8 @@ add_dns_settings() {
 
 						json_close_array # expectIPs
 					fi
+
+					json_add_boolean "skipFallback" "$skip_fallback"
 					
 					if [ -n "$client_ip" ]; then
 						json_add_string "clientIp" "$client_ip"

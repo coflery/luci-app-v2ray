@@ -74,6 +74,30 @@ msgstr ""
 msgid "APNIC delegated mirror"
 msgstr ""
 
+#: package/htdocs/luci-static/resources/view/v2ray/dns.js:28
+msgid "Can be configured as a non-private IP address"
+msgstr ""
+
+#: package/htdocs/luci-static/resources/view/v2ray/dns.js:42
+msgid "Disable Cache"
+msgstr ""
+
+#: package/htdocs/luci-static/resources/view/v2ray/dns.js:45
+msgid "Disable Fallback"
+msgstr ""
+
+#: package/htdocs/luci-static/resources/view/v2ray/dns.js:46
+msgid "Disable Fallback If Match"
+msgstr ""
+
+#: package/htdocs/luci-static/resources/view/v2ray/dns.js:48
+msgid "Skip Fallback"
+msgstr ""
+
+#: package/htdocs/luci-static/resources/view/v2ray/dns.js:50
+msgid "Query Strategy"
+msgstr ""
+
 #: package/htdocs/luci-static/resources/view/v2ray/about.js:27
 #: package/luasrc/controller/v2ray.lua:31
 #: package/root/usr/share/luci/menu.d/luci-app-v2ray.json:82
