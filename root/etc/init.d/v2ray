@@ -13,15 +13,13 @@ CONFIG_FOLDER=/var/etc/$NAME
 FILE_V2RAY_DNSMASQ=/tmp/dnsmasq.d/$NAME
 FILE_V2RAY_DNSMASQ_CACHE=/tmp/$NAME.dnsmasq.cache
 
-NFTABLE=$NAME
-NFSET_SRC_IGNORE_V4=src_ignore_v4
-NFSET_SRC_IGNORE_V6=src_ignore_v6
-NFSET_DST_PROXY_V4=dst_proxy_v4
-NFSET_DST_PROXY_V6=dst_proxy_v6
-NFSET_SRC_DIRECT_V4=src_direct_v4
-NFSET_SRC_DIRECT_V6=src_direct_v6
-NFSET_DST_DIRECT_V4=dst_direct_v4
-NFSET_DST_DIRECT_V6=dst_direct_v6
+NFSET_SRC_IGNORE_V4=v2ray_src_ignore_v4
+NFSET_SRC_IGNORE_V6=v2ray_src_ignore_v6
+NFSET_DST_PROXY_V4=v2ray_dst_proxy_v4
+NFSET_DST_PROXY_V6=v2ray_dst_proxy_v6
+NFSET_SRC_DIRECT_V4=v2ray_src_direct_v4
+NFSET_DST_DIRECT_V4=v2ray_dst_direct_v4
+NFSET_DST_DIRECT_V6=v2ray_dst_direct_v6
 
 OUTBOUND_SERVERS_V4=
 OUTBOUND_SERVERS_V6=
@@ -287,8 +285,11 @@ inbound_section_validate() {
 		's_vmess_disable_insecure_encryption:bool:0' \
 		'ss_network:or("tcp", "kcp", "ws", "http", "domainsocket", "quic")' \
 		'ss_security:or("none", "tls")' \
+		's_xtls_flow:or("none", "xtls-rprx-direct", "xtls-rprx-direct-udp443", "xtls-rprx-origin", "xtls-rprx-origin-udp443", "xtls-rprx-splice", "xtls-rprx-splice-udp443", "xtls-rprx-vision", "xtls-rprx-vision-udp443")' \
+		'min_tls_version:or("", "1.0", "1.1", "1.2", "1.3")' \
+		'max_tls_version:or("", "1.0", "1.1", "1.2", "1.3")' \
 		'ss_tls_server_name:host' \
-		'ss_tls_alpn:string' \
+		'ss_tls_alpn:list(string)' \
 		'u_tls:or("", "chrome", "firefox", "safari", "randomized")' \
 		'ss_tls_rejectUnknownSni:bool:0' \
 		'ss_tls_allow_insecure:bool:0' \
@@ -379,6 +380,10 @@ outbound_section_validate() {
 		's_vless_user_encryption:or("none")' \
 		'ss_network:or("tcp", "kcp", "ws", "http", "domainsocket", "quic", "grpc")' \
 		'ss_security:or("none", "tls")' \
+		'ss_xtls_enabled:bool:0' \
+		's_xtls_flow:or("none", "xtls-rprx-direct", "xtls-rprx-direct-udp443", "xtls-rprx-origin", "xtls-rprx-origin-udp443", "xtls-rprx-splice", "xtls-rprx-splice-udp443", "xtls-rprx-vision", "xtls-rprx-vision-udp443")' \
+		'min_tls_version:or("", "1.0", "1.1", "1.2", "1.3")' \
+		'max_tls_version:or("", "1.0", "1.1", "1.2", "1.3")' \
 		'ss_tls_server_name:host' \
 		'ss_tls_alpn:list(string)' \
 		'u_tls:or("", "chrome", "firefox", "safari", "randomized")' \
@@ -436,39 +441,17 @@ add_v2ray_redirect_rules() {
 
 	local port="$TRANSPARENT_PROXY_PORT"
 	local addition="$TRANSPARENT_PROXY_ADDITION"
-	local nftset_src_direct="$NFSET_SRC_DIRECT_V4"
-	local nftset_dst_direct="$NFSET_DST_DIRECT_V4"
+	local nfset_src_direct="$NFSET_SRC_DIRECT_V4"
+	local nfset_dst_direct="$NFSET_DST_DIRECT_V4"
 
 	test -n "$port" || return
-
-
-	cat <<-EOF >/tmp/redirect_nftables.txt
-		*nat
-		:V2RAY -
-		-A V2RAY -p tcp -j RETURN -m mark --mark 0xff
-		-A V2RAY -p tcp -j RETURN -m set --match-set $nftset_src_direct src
-		-A V2RAY -p tcp -j RETURN -m set --match-set $nftset_dst_direct dst
-		-A V2RAY -p tcp $ext_args -j REDIRECT --to-ports $port
-		$(
-			if [ -n "$lan_devices" ]; then
-				local device
-				for device in $lan_devices; do
-					echo "-A PREROUTING -p tcp -i $device -j V2RAY"
-				done
-			else
-				echo "-A PREROUTING -p tcp -j V2RAY"
-			fi
-		)
-		-A OUTPUT -p tcp -j V2RAY
-		COMMIT
-	EOF
 
 	iptables-restore --noflush <<-EOF 2>/dev/null
 		*nat
 		:V2RAY -
 		-A V2RAY -p tcp -j RETURN -m mark --mark 0xff
-		-A V2RAY -p tcp -j RETURN -m set --match-set $nftset_src_direct src
-		-A V2RAY -p tcp -j RETURN -m set --match-set $nftset_dst_direct dst
+		-A V2RAY -p tcp -j RETURN -m set --match-set $nfset_src_direct src
+		-A V2RAY -p tcp -j RETURN -m set --match-set $nfset_dst_direct dst
 		-A V2RAY -p tcp $ext_args -j REDIRECT --to-ports $port
 		$(
 			if [ -n "$lan_devices" ]; then
@@ -488,7 +471,7 @@ add_v2ray_redirect_rules() {
 		ip rule add fwmark 1 lookup 100
 		ip route add local 0.0.0.0/0 dev lo table 100 2>/dev/null
 
-		cat <<-EOF >/tmp/redirect_nftables_1.txt
+		iptables-restore --noflush <<-EOF 2>/dev/null
 			*mangle
 			:V2RAY -
 			-A V2RAY -p udp -j RETURN -m mark --mark 0xff
@@ -500,12 +483,12 @@ add_v2ray_redirect_rules() {
 					done
 				fi
 			)
-			-A V2RAY -p udp -j RETURN -m set --match-set $nftset_dst_direct dst
+			-A V2RAY -p udp -j RETURN -m set --match-set $nfset_dst_direct dst
 			$(
 				if [ "$addition" = "dns" ]; then
 					echo "-A V2RAY -p udp --dport 53 -j TPROXY --on-port $port --tproxy-mark 0x1/0x1"
 				else
-					echo "-A V2RAY -p udp -j TPROXY --on-ip 127.0.0.1 --on-port $port --tproxy-mark 0x1/0x1"
+					echo "-A V2RAY -p udp -j TPROXY --on-port $port --tproxy-mark 0x1/0x1"
 				fi
 
 				if [ -n "$lan_devices" ]; then
@@ -522,8 +505,8 @@ add_v2ray_redirect_rules() {
 
 			:V2RAY_MARK -
 			-A V2RAY_MARK -p udp -j RETURN -m mark --mark 0xff
-			-A V2RAY_MARK -p udp -j RETURN -m set --match-set $nftset_src_direct src
-			-A V2RAY_MARK -p udp -j RETURN -m set --match-set $nftset_dst_direct dst
+			-A V2RAY_MARK -p udp -j RETURN -m set --match-set $nfset_src_direct src
+			-A V2RAY_MARK -p udp -j RETURN -m set --match-set $nfset_dst_direct dst
 			$(
 				if [ "$addition" = "dns" ]; then
 					echo "-A V2RAY_MARK -p udp --dport 53 -j MARK --set-mark 1"
@@ -534,110 +517,88 @@ add_v2ray_redirect_rules() {
 			-A OUTPUT -p udp -j V2RAY_MARK
 			COMMIT
 		EOF
-
-	iptables-restore --noflush <<-EOF 2>/dev/null
-		*mangle
-		:V2RAY -
-		-A V2RAY -p udp -j RETURN -m mark --mark 0xff
-		$(
-			if [ -n "$lan_ipaddrs" ]; then
-				local ipaddr
-				for ipaddr in $lan_ipaddrs; do
-					echo "-A V2RAY -p udp --dport 53 -d $ipaddr --on-ip 127.0.0.1 -j TPROXY --on-port $port --tproxy-mark 0x1/0x1"
-				done
-			fi
-		)
-		-A V2RAY -p udp -j RETURN -m set --match-set $nftset_dst_direct dst
-		$(
-				if [ "$addition" = "dns" ]; then
-					echo "-A V2RAY -p udp --dport 53 --on-ip 127.0.0.1 -j TPROXY --on-port $port --tproxy-mark 0x1/0x1"
-				else
-					echo "-A V2RAY -p udp --on-ip 127.0.0.1 -j TPROXY --on-port $port --tproxy-mark 0x1/0x1"
-			fi
-
-			if [ -n "$lan_devices" ]; then
-				local device
-				for device in $lan_devices; do
-					echo "-A PREROUTING -p udp -i $device -j V2RAY"
-				done
-
-				echo "-A PREROUTING -p udp -j V2RAY -m mark --mark 0x1"
-			else
-				echo "-A PREROUTING -p udp -j V2RAY"
-			fi
-		)
-
-		:V2RAY_MARK -
-		-A V2RAY_MARK -p udp -j RETURN -m mark --mark 0xff
-		-A V2RAY_MARK -p udp -j RETURN -m set --match-set $nftset_src_direct src
-		-A V2RAY_MARK -p udp -j RETURN -m set --match-set $nftset_dst_direct dst
-		$(
-			if [ "$addition" = "dns" ]; then
-					echo "-A V2RAY_MARK -p udp --dport 53 -j MARK --set-mark 1"
-				else
-					echo "-A V2RAY_MARK -p udp -j MARK --set-mark 1"
-			fi
-		)
-		-A OUTPUT -p udp -j V2RAY_MARK
-		COMMIT
-	EOF
-fi
+	fi
 }
 
 add_v2ray_tproxy_rules() {
 	local ext_args="$1"
 	local lan_devices="$2"
 	local lan_ipaddrs="$3"
-	local lan_ipaddrs6="$4"
 
 	local port="$TRANSPARENT_PROXY_PORT"
 	local addition="$TRANSPARENT_PROXY_ADDITION"
-	local nftset_src_direct="$NFSET_SRC_DIRECT_V4"
-	local nftset_dst_direct="$NFSET_DST_DIRECT_V4"
-	local nftset_src_direct_v6="$NFSET_SRC_DIRECT_V6"
-	local nftset_dst_direct_v6="$NFSET_DST_DIRECT_V6"
-	local nftset_dst_proxy_v4="$NFSET_DST_PROXY_V4"
-	local nftset_dst_proxy_v6="$NFSET_DST_PROXY_V6"
+	local nfset_src_direct="$NFSET_SRC_DIRECT_V4"
+	local nfset_dst_direct="$NFSET_DST_DIRECT_V4"
 
 	test -n "$port" || return
 
 	# https://www.kernel.org/doc/Documentation/networking/tproxy.txt
 
-	ip rule add fwmark 0x1/0x3 lookup 100
+	ip rule add fwmark 1 lookup 100
 	ip route add local 0.0.0.0/0 dev lo table 100 2>/dev/null
 
-	ip -6 rule add fwmark 0x1/0x3 lookup 100
-	ip -6 route add local ::/0 dev lo table 100
+	iptables-restore --noflush <<-EOF 2>/dev/null
+		*mangle
+		:V2RAY -
+		-A V2RAY -j RETURN -m mark --mark 0xff
+		$(
+			if [ -n "$addition" ] && [ -n "$lan_ipaddrs" ]; then
+				local ipaddr
+				for ipaddr in $lan_ipaddrs; do
+					echo "-A V2RAY -p udp --dport 53 -d $ipaddr -j TPROXY --on-port $port --tproxy-mark 0x1/0x1"
+				done
+			fi
+		)
+		-A V2RAY -j RETURN -m set --match-set $nfset_src_direct src
+		-A V2RAY -j RETURN -m set --match-set $nfset_dst_direct dst
+		-A V2RAY -p tcp $ext_args -j TPROXY --on-port $port --tproxy-mark 0x1/0x1
+		$(
+			if [ -n "$addition" ]; then
+				if [ "$addition" = "dns" ]; then
+					echo "-A V2RAY -p udp --dport 53 -j TPROXY --on-port $port --tproxy-mark 0x1/0x1"
+				else
+					echo "-A V2RAY -p udp -j TPROXY --on-port $port --tproxy-mark 0x1/0x1"
+				fi
+			fi
 
-	cat <<-EOF >/tmp/tproxy_nftables.txt
-		table inet $NFTABLE {
-			chain prerouting {
-				type filter hook prerouting priority mangle; policy accept;
-				ip daddr != @$nftset_dst_proxy_v4 return
-				ip6 daddr != @$nftset_dst_proxy_v6 return
-				meta l4proto {tcp, udp} tproxy to :$port meta mark set 1
+			if [ -n "$lan_devices" ]; then
+				local device
+				for device in $lan_devices; do
+					echo "-A PREROUTING -i $device -j V2RAY"
+				done
 
-				#ip protocol {tcp, udp} tproxy ip to :$port meta mark set 1
-				#ip6 nexthdr {tcp, udp} tproxy ip6 to :$port meta mark set 1
-			}
-		}
+				echo "-A PREROUTING -j V2RAY -m mark --mark 0x1"
+			else
+				echo "-A PREROUTING -j V2RAY"
+			fi
+		)
+
+		:V2RAY_MASK -
+		-A V2RAY_MASK -j RETURN -m mark --mark 0xff
+		-A V2RAY_MASK -j RETURN -m set --match-set $nfset_src_direct src
+		-A V2RAY_MASK -j RETURN -m set --match-set $nfset_dst_direct dst
+		-A V2RAY_MASK -p tcp $ext_args -j MARK --set-mark 1
+		$(
+			if [ -n "$addition" ]; then
+				if [ "$addition" = "dns" ]; then
+					echo "-A V2RAY_MASK -p udp --dport 53 -j MARK --set-mark 1"
+				else
+					echo "-A V2RAY_MASK -p udp -j MARK --set-mark 1"
+				fi
+			fi
+		)
+		-A OUTPUT -j V2RAY_MASK
+		COMMIT
 	EOF
-
-	nft -f /tmp/tproxy_nftables.txt
 }
 
-clear_v2ray_route() {
+clear_v2ray_rules() {
+	iptables-save --counters | grep -v "V2RAY" | iptables-restore --counters
+
 	while ip rule del fwmark 1 lookup 100 2>/dev/null; do true; done
-	while ip rule del fwmark 0x1 lookup 100 2>/dev/null; do true; done
-	while ip rule del fwmark 0x1/0x3 lookup 100 2>/dev/null; do true; done
+
 	ip route flush table 100
 	ip route del local 0.0.0.0/0 dev lo table 100 2>/dev/null
-
-	while ip -6 rule del fwmark 1 lookup 100 2>/dev/null; do true; done
-	while ip -6 rule del fwmark 0x1 lookup 100 2>/dev/null; do true; done
-	while ip -6 rule del fwmark 0x1/0x3 lookup 100 2>/dev/null; do true; done
-	ip -6 route flush table 100
-	ip -6 route del local ::/0 dev lo table 100 2>/dev/null
 }
 
 create_v2ray_nfset() {
@@ -659,6 +620,7 @@ create_v2ray_nfset() {
 		203.0.113.0/24
 		224.0.0.0/4
 		240.0.0.0/4
+		255.255.255.255
 	EOF
 	)"
 
@@ -685,25 +647,24 @@ create_v2ray_nfset() {
 	local outbound_v6="$OUTBOUND_SERVERS_V6"
 
 	nft -f - <<-EOF 2>/dev/null
-		add table inet $NFTABLE
-		add set inet $NFTABLE $NFSET_SRC_IGNORE_V4 { type ipv4_addr; flags interval; }
-		add set inet $NFTABLE $NFSET_SRC_IGNORE_V6 { type ipv6_addr; flags interval; }
-		add set inet $NFTABLE $NFSET_DST_PROXY_V4 { type ipv4_addr; flags interval; timeout 1d; }
-		add set inet $NFTABLE $NFSET_DST_PROXY_V6 { type ipv6_addr; flags interval; timeout 1d; }
-		add set inet $NFTABLE $NFSET_SRC_DIRECT_V4 { type ipv4_addr; flags interval; }
-		add set inet $NFTABLE $NFSET_SRC_DIRECT_V6 { type ipv6_addr; flags interval; }
-		add set inet $NFTABLE $NFSET_DST_DIRECT_V4 { type ipv4_addr; flags interval; }
-		add set inet $NFTABLE $NFSET_DST_DIRECT_V6 { type ipv6_addr; flags interval; }
-		$(echo "$reserved_v4" | sed "s/.*/add element inet $NFTABLE $NFSET_DST_DIRECT_V4 {&}/")
-		$(echo "$reserved_v6" | sed "s/.*/add element inet $NFTABLE $NFSET_DST_DIRECT_V6 {&}/")
-		$(echo "$outbound_v4" | grep -v "^$" | sed "s/.*/add element inet $NFTABLE $NFSET_DST_DIRECT_V4 {&}/")
-		$(echo "$outbound_v6" | grep -v "^$" | sed "s/.*/add element inet $NFTABLE $NFSET_DST_DIRECT_V6 {&}/")
+		add table inet global
+		add set inet global $NFSET_SRC_IGNORE_V4 { type ipv4_addr; flags interval; }
+		add set inet global $NFSET_SRC_IGNORE_V6 { type ipv6_addr; flags interval; }
+		add set inet global $NFSET_DST_PROXY_V4 { type ipv4_addr; flags interval; timeout 1h; }
+		add set inet global $NFSET_DST_PROXY_V6 { type ipv6_addr; flags interval; timeout 1h; }
+		add set inet global $NFSET_SRC_DIRECT_V4 { type ipv4_addr; flags interval; }
+		add set inet global $NFSET_DST_DIRECT_V4 { type ipv4_addr; flags interval; timeout 1h; }
+		add set inet global $NFSET_DST_DIRECT_V6 { type ipv6_addr; flags interval; timeout 1h; }
+		$(echo "$reserved_v4" | sed "s/.*/add element inet global $NFSET_DST_DIRECT_V4 {&}/")
+		$(echo "$reserved_v6" | sed "s/.*/add element inet global $NFSET_DST_DIRECT_V6 {&}/")
+		$(echo "$outbound_v4" | grep -v "^$" | sed "s/.*/add element inet global $NFSET_DST_DIRECT_V4 {&}/")
+		$(echo "$outbound_v6" | grep -v "^$" | sed "s/.*/add element inet global $NFSET_DST_DIRECT_V6 {&}/")
 	EOF
 }
 
 destroy_v2ray_rules() {
 	nft -f - <<-EOF 2>/dev/null
-		delete table inet $NFTABLE 
+		delete table inet v2ray
 	EOF
 }
 
@@ -720,24 +681,25 @@ init_rules_for_listfile() {
 	if [ -n "$direct_content" ]; then
 		echo "$direct_content" |
 			grep -oE "[0-9]{1,3}(\.[0-9]{1,3}){3}(/[0-9]{1,2})?" |
-			sed "s/.*/add element inet $NFTABLE $NFSET_DST_DIRECT_V4 {&}/" |
+			sed "s/.*/add element inet v2ray $NFSET_DST_DIRECT_V4 {&}/" |
 			nft -f - 2>/dev/null
 
 		echo "$direct_content" |
 			grep -oE "([0-9a-fA-F]{0,4}:){1,7}([0-9a-fA-F]){0,4}(/[0-9]{1,2})?" |
-			sed "s/.*/add element inet $NFTABLE $NFSET_DST_DIRECT_V6 {&}/" |
+			sed "s/.*/add element inet v2ray $NFSET_DST_DIRECT_V6 {&}/" |
 			nft -f - 2>/dev/null
 
 		if [ -n "$direct_list_dns" ]; then
 			echo "$direct_content" |
 				grep -oE "([0-9a-zA-Z_-]+\.)+[a-zA-Z]{2,}$" |
-				sed "s|.*|server=/&/$direct_list_dns\nnftset=/&/4#inet#$NFTABLE#$NFSET_DST_DIRECT_V4,6#inet#$NFTABLE#$NFSET_DST_DIRECT_V6|" \
-				>>"$FILE_V2RAY_DNSMASQ_CACHE"
+				sed "s|.*|server=/&/$direct_list_dns\n \
+					nftset=/&/4#inet#v2ray#$NFSET_DST_DIRECT_V4,6#inet#v2ray#$NFSET_DST_DIRECT_V6|" \
+					>>"$FILE_V2RAY_DNSMASQ_CACHE"
 		else
 			echo "$direct_content" |
 				grep -oE "([0-9a-zA-Z_-]+\.)+[a-zA-Z]{2,}$" |
-				sed "s|.*|nftset=/&/4#inet#$NFTABLE#$NFSET_DST_DIRECT_V4,6#inet#$NFTABLE#$NFSET_DST_DIRECT_V6|" \
-				>>"$FILE_V2RAY_DNSMASQ_CACHE"
+				sed "s|.*|nftset=/&/4#inet#v2ray#$NFSET_DST_DIRECT_V4,6#inet#v2ray#$NFSET_DST_DIRECT_V6|" \
+					>>"$FILE_V2RAY_DNSMASQ_CACHE"
 		fi
 	fi
 
@@ -748,24 +710,25 @@ init_rules_for_listfile() {
 	if [ -n "$proxy_content" ]; then
 		echo "$proxy_content" |
 			grep -oE "[0-9]{1,3}(\.[0-9]{1,3}){3}(/[0-9]{1,2})?" |
-			sed "s/.*/add element inet $NFTABLE $NFSET_DST_PROXY_V4 {&}/" |
+			sed "s/.*/add element inet v2ray $NFSET_DST_PROXY_V4 {&}/" |
 			nft -f - 2>/dev/null
 
 		echo "$proxy_content" |
 			grep -oE "([0-9a-fA-F]{0,4}:){1,7}([0-9a-fA-F]){0,4}(/[0-9]{1,2})?" |
-			sed "s/.*/add element inet $NFTABLE $NFSET_DST_PROXY_V6 {&}/" |
+			sed "s/.*/add element inet v2ray $NFSET_DST_PROXY_V6 {&}/" |
 			nft -f - 2>/dev/null
 
 		if [ -n "$proxy_list_dns" ]; then
 			echo "$proxy_content" |
 				grep -oE "([0-9a-zA-Z_-]+\.)+[a-zA-Z]{2,}$" |
-				sed "s|.*|server=/&/$proxy_list_dns\nnftset=/&/4#inet#$NFTABLE#$NFSET_DST_PROXY_V4,6#inet#$NFTABLE#$NFSET_DST_PROXY_V6|" \
-				>>"$FILE_V2RAY_DNSMASQ_CACHE"
+				sed "s|.*|server=/&/$proxy_list_dns\n \
+				nftset=/&/4#inet#v2ray#$NFSET_DST_PROXY_V4,6#inet#v2ray#$NFSET_DST_PROXY_V6|" \
+					>>"$FILE_V2RAY_DNSMASQ_CACHE"
 		else
 			echo "$proxy_content" |
 				grep -oE "([0-9a-zA-Z_-]+\.)+[a-zA-Z]{2,}$" |
-				sed "s|.*|nftset=/&/4#inet#$NFTABLE#$NFSET_DST_PROXY_V4,6#inet#$NFTABLE#$NFSET_DST_PROXY_V6|" \
-				>>"$FILE_V2RAY_DNSMASQ_CACHE"
+				sed "s|.*|nftset=/&/4#inet#v2ray#$NFSET_DST_PROXY_V4,6#inet#v2ray#$NFSET_DST_PROXY_V6|" \
+					>>"$FILE_V2RAY_DNSMASQ_CACHE"
 		fi
 	fi
 
@@ -776,7 +739,7 @@ init_rules_for_listfile() {
 	if [ -n "$src_content" ]; then
 		echo "$src_content" |
 			grep -oE "[0-9]{1,3}(\.[0-9]{1,3}){3}(/[0-9]{1,2})?" |
-			sed "s/.*/add element inet $NFTABLE $NFSET_SRC_DIRECT_V4 {&}/" |
+			sed "s/.*/add element inet v2ray $NFSET_SRC_DIRECT_V4 {&}/" |
 			nft -f - 2>/dev/null
 	fi
 
@@ -1375,11 +1338,22 @@ add_inbound_setting() {
 	test -n "$ss_network" &&
 		json_add_string "network" "$ss_network"
 
-	test -n "$ss_security" && \
-		json_add_string "security" "$ss_security"
-
 	if [ "$ss_security" = "tls" ]; then
 		json_add_object "tlsSettings"
+		if [ "$s_xtls_flow" != "none" ] && [ "${s_xtls_flow:10:6}" != "vision" ]; then
+			json_add_string "security" "xtls"
+			json_add_object "xtlsSettings"
+
+		else
+			json_add_string "security" "$ss_security"
+			json_add_object "tlsSettings"
+		fi
+		if [ "$min_tls_version" != "" ]; then
+			json_add_string "minVersion" "$min_tls_version"
+		fi
+		if [ "$max_tls_version" != "" ]; then
+			json_add_string "maxVersion" "$max_tls_version"
+		fi
 		test -n "$ss_tls_server_name" &&
 			json_add_string "serverName" "$ss_tls_server_name"
 
@@ -1882,12 +1856,24 @@ add_outbound_setting() {
 	test -n "$ss_network" &&
 		json_add_string "network" "$ss_network"
 
-	test -n "$ss_security" && \
-		json_add_string "security" "$ss_security"
-
+	#test -n "$ss_security" && \
 	case "${ss_security:-x}" in
 	"tls")
-		json_add_object "tlsSettings"
+		if [ "$ss_security" = "tls" ] && [ "$s_xtls_flow" != "none" ] && [ "${s_xtls_flow:10:6}" != "vision" ]; then
+			json_add_string "security" "xtls"
+			json_add_object "xtlsSettings"
+
+		else
+			json_add_string "security" "$ss_security"
+			json_add_object "tlsSettings"
+		fi
+
+		if [ "$min_tls_version" != "" ]; then
+			json_add_string "minVersion" "$min_tls_version"
+		fi
+		if [ "$max_tls_version" != "" ]; then
+			json_add_string "maxVersion" "$max_tls_version"
+		fi
 
 		test -n "$ss_tls_server_name" &&
 			json_add_string "serverName" "$ss_tls_server_name"
@@ -2224,13 +2210,13 @@ setup_transparent_proxy() {
 
 			if [ -n "$chnroute" ]; then
 				nft -f - <<-EOF 2>/dev/null
-					$(echo "$chnroute" | sed "s/.*/add element inet $NFTABLE $NFSET_DST_DIRECT_V4 {&}/")
+					$(echo "$chnroute" | sed "s/.*/add element inet v2ray $NFSET_DST_DIRECT_V4 {&}/")
 				EOF
 			fi
 
 			if [ -n "$chnroute6" ]; then
 				nft -f - <<-EOF 2>/dev/null
-					$(echo "$chnroute6" | sed "s/.*/add element inet $NFTABLE $NFSET_DST_DIRECT_V6 {&}/")
+					$(echo "$chnroute6" | sed "s/.*/add element inet v2ray $NFSET_DST_DIRECT_V6 {&}/")
 				EOF
 			fi
 
@@ -2242,13 +2228,13 @@ setup_transparent_proxy() {
 
 			if [ -n "$chnroute" ]; then
 				nft -f - <<-EOF 2>/dev/null
-					$(echo "$chnroute" | sed "s/.*/add element inet $NFTABLE $NFSET_DST_PROXY_V4 {&}/")
+					$(echo "$chnroute" | sed "s/.*/add element inet v2ray $NFSET_DST_PROXY_V4 {&}/")
 				EOF
 			fi
 
 			if [ -n "$chnroute6" ]; then
 				nft -f - <<-EOF 2>/dev/null
-					$(echo "$chnroute6" | sed "s/.*/add element inet $NFTABLE $NFSET_DST_PROXY_V6 {&}/")
+					$(echo "$chnroute6" | sed "s/.*/add element inet v2ray $NFSET_DST_PROXY_V6 {&}/")
 				EOF
 			fi
 
@@ -2260,11 +2246,11 @@ setup_transparent_proxy() {
 			if [ -n "$gfwlist" ]; then
 				if [ -n "$proxy_list_dns" ]; then
 					echo "$gfwlist" |
-						sed "s|.*|server=/&/$proxy_list_dns\nnftset=/&/4#inet#$NFTABLE#$NFSET_DST_PROXY_V4,6#inet#$NFTABLE#$NFSET_DST_PROXY_V6|" \
+						sed "s|.*|server=/&/$proxy_list_dns\nipset=/&/$NFSET_DST_PROXY_V4,$NFSET_DST_PROXY_V6|" \
 						>> "$FILE_V2RAY_DNSMASQ_CACHE"
 				else
 					echo "$gfwlist" |
-						sed "s|.*|nftset=/&/4#inet#$NFTABLE#$NFSET_DST_PROXY_V4,6#inet#$NFTABLE#$NFSET_DST_PROXY_V6|" \
+						sed "s|.*|ipset=/&/$NFSET_DST_PROXY_V4,$NFSET_DST_PROXY_V6|" \
 						>> "$FILE_V2RAY_DNSMASQ_CACHE"
 				fi
 			fi
@@ -2289,17 +2275,16 @@ setup_transparent_proxy() {
 
 	rm -f "$FILE_V2RAY_DNSMASQ_CACHE"
 
-	local lan_devices lan_ipaddrs lan_ipaddrs6
+	local lan_devices lan_ipaddrs
 
 	if [ -n "$lan_ifaces" ]; then
 		. /lib/functions/network.sh
 
 		local lan
 		for lan in $lan_ifaces; do
-			local device ipaddrs ipaddr ipaddrs6 ipaddr6
+			local device ipaddrs ipaddr
 			network_get_device device "$lan"
 			network_get_ipaddrs ipaddrs "$lan"
-			network_get_ipaddrs6 ipaddrs6 "$lan"
 
 			if [ -n "$device" ]; then
 				if [ -n "$lan_devices" ]; then
@@ -2318,29 +2303,19 @@ setup_transparent_proxy() {
 					fi
 				done
 			fi
-
-			if [ -n "$ipaddrs6" ]; then
-				for ipaddr6 in $ipaddrs6; do
-					if [ -n "$lan_ipaddrs6" ]; then
-						lan_ipaddrs6="$ipaddr6"
-					else
-						lan_ipaddrs6="$lan_ipaddrs6 $ipaddr6"
-					fi
-				done
-			fi
 		done
 	fi
 
 	if [ "x$TRANSPARENT_PROXY_USE_TPROXY" = "x1" ]; then
 		_info "Use TProxy to setup nftables"
-		add_v2ray_tproxy_rules "$ext_args" "$lan_devices" "$lan_ipaddrs" "$lan_ipaddrs6"
+		add_v2ray_tproxy_rules "$ext_args" "$lan_devices" "$lan_ipaddrs"
 	else
-		add_v2ray_redirect_rules "$ext_args" "$lan_devices" "$lan_ipaddrs" "$lan_ipaddrs6"
+		add_v2ray_redirect_rules "$ext_args" "$lan_devices" "$lan_ipaddrs"
 	fi
 }
 
 clear_transparent_proxy() {
-	clear_v2ray_route
+	clear_v2ray_rules
 	destroy_v2ray_rules
 
 	if [ -s "$FILE_V2RAY_DNSMASQ" ]; then
@@ -2377,7 +2352,6 @@ start_instance() {
 			return 1
 		fi
 
-		# xray doesn't have test command
 		if ! ( eval "$v2ray_file test --config=\"$config_file\" >/dev/null 2>&1" ); then
 			_err "Validate config file failed: $config_file"
 			return 1
@@ -2469,14 +2443,15 @@ start_instance() {
 	TRANSPARENT_PROXY_EXPECTED=1
 
 	procd_open_instance "$NAME.$section"
-	procd_set_param command "/usr/libexec/v2ray/v2ray_entry.sh"
+	procd_set_param command "/usr/libexec/luci_v2ray/luci_v2ray_entry.sh"
 	procd_append_param env V2RAY_BIN_FILE="$v2ray_file"
+
 	procd_append_param command "run"
 	procd_append_param command "--config=$temp_config"
 	procd_set_param respawn
 
 	if [ -n "$asset_location" ] && [ -d "$asset_location" ]; then
-		procd_append_param env V2RAY_LOCATION_ASSET="$asset_location"
+		procd_set_param env V2RAY_LOCATION_ASSET="$asset_location"
 	fi
 
 	# cat /proc/PID/limits to see if limits works
@@ -2486,8 +2461,8 @@ start_instance() {
 	if [ "$mem_percentage" -gt "0" ]; then
 		local mem_total="$(awk '/MemTotal/ {print $2}' /proc/meminfo)"
 		if [ -n "$mem_total" ]; then
-			local use_mem_in_kib="$(expr $mem_total \* $mem_percentage \/ 100)"
-			procd_append_param env GOMEMLIMIT="${use_mem_in_kib}KiB"
+			local use_mem="$(expr $mem_total \* $mem_percentage \* 10)"
+			procd_append_param limits as="$use_mem $use_mem"
 		fi
 	fi
 
