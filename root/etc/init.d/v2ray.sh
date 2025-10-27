@@ -689,11 +689,12 @@ create_v2ray_nfset() {
 		add table inet $NFTABLE
 		add set inet $NFTABLE $NFSET_SRC_IGNORE_V4 { type ipv4_addr; flags interval; }
 		add set inet $NFTABLE $NFSET_SRC_IGNORE_V6 { type ipv6_addr; flags interval; }
-		add set inet $NFTABLE $NFSET_DST_PROXY_V4 { type ipv4_addr; flags interval; timeout 1h; }
-		add set inet $NFTABLE $NFSET_DST_PROXY_V6 { type ipv6_addr; flags interval; timeout 1h; }
+		add set inet $NFTABLE $NFSET_DST_PROXY_V4 { type ipv4_addr; flags interval; timeout 1d; }
+		add set inet $NFTABLE $NFSET_DST_PROXY_V6 { type ipv6_addr; flags interval; timeout 1d; }
 		add set inet $NFTABLE $NFSET_SRC_DIRECT_V4 { type ipv4_addr; flags interval; }
-		add set inet $NFTABLE $NFSET_DST_DIRECT_V4 { type ipv4_addr; flags interval; timeout 1h; }
-		add set inet $NFTABLE $NFSET_DST_DIRECT_V6 { type ipv6_addr; flags interval; timeout 1h; }
+		add set inet $NFTABLE $NFSET_SRC_DIRECT_V6 { type ipv6_addr; flags interval; }
+		add set inet $NFTABLE $NFSET_DST_DIRECT_V4 { type ipv4_addr; flags interval; }
+		add set inet $NFTABLE $NFSET_DST_DIRECT_V6 { type ipv6_addr; flags interval; }
 		$(echo "$reserved_v4" | sed "s/.*/add element inet $NFTABLE $NFSET_DST_DIRECT_V4 {&}/")
 		$(echo "$reserved_v6" | sed "s/.*/add element inet $NFTABLE $NFSET_DST_DIRECT_V6 {&}/")
 		$(echo "$outbound_v4" | grep -v "^$" | sed "s/.*/add element inet $NFTABLE $NFSET_DST_DIRECT_V4 {&}/")
