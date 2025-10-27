@@ -7,12 +7,13 @@
 START=99
 USE_PROCD=1
 
-NAME=v2ray
+NAME=$NFTABLE
 CONFIG_FOLDER=/var/etc/$NAME
 
 FILE_V2RAY_DNSMASQ=/tmp/dnsmasq.d/$NAME
 FILE_V2RAY_DNSMASQ_CACHE=/tmp/$NAME.dnsmasq.cache
 
+NFTABLE=$NAME
 NFTABLE=$NAME
 NFSET_SRC_IGNORE_V4=v2ray_src_ignore_v4
 NFSET_SRC_IGNORE_V6=v2ray_src_ignore_v6
@@ -704,7 +705,7 @@ create_v2ray_nfset() {
 
 destroy_v2ray_rules() {
 	nft -f - <<-EOF 2>/dev/null
-		delete table inet $NFTABLE 
+		delete table inet v2ray
 	EOF
 }
 
@@ -732,13 +733,14 @@ init_rules_for_listfile() {
 		if [ -n "$direct_list_dns" ]; then
 			echo "$direct_content" |
 				grep -oE "([0-9a-zA-Z_-]+\.)+[a-zA-Z]{2,}$" |
-				sed "s|.*|server=/&/$direct_list_dns\nnftset=/&/4#inet#$NFTABLE#$NFSET_DST_DIRECT_V4,6#inet#$NFTABLE#$NFSET_DST_DIRECT_V6|" \
-				>>"$FILE_V2RAY_DNSMASQ_CACHE"
+				sed "s|.*|server=/&/$direct_list_dns\n \
+					nftset=/&/4#inet#v2ray#$NFSET_DST_DIRECT_V4,6#inet#v2ray#$NFSET_DST_DIRECT_V6|" \
+					>>"$FILE_V2RAY_DNSMASQ_CACHE"
 		else
 			echo "$direct_content" |
 				grep -oE "([0-9a-zA-Z_-]+\.)+[a-zA-Z]{2,}$" |
-				sed "s|.*|nftset=/&/4#inet#$NFTABLE#$NFSET_DST_DIRECT_V4,6#inet#$NFTABLE#$NFSET_DST_DIRECT_V6|" \
-				>>"$FILE_V2RAY_DNSMASQ_CACHE"
+				sed "s|.*|nftset=/&/4#inet#v2ray#$NFSET_DST_DIRECT_V4,6#inet#v2ray#$NFSET_DST_DIRECT_V6|" \
+					>>"$FILE_V2RAY_DNSMASQ_CACHE"
 		fi
 	fi
 
@@ -760,13 +762,14 @@ init_rules_for_listfile() {
 		if [ -n "$proxy_list_dns" ]; then
 			echo "$proxy_content" |
 				grep -oE "([0-9a-zA-Z_-]+\.)+[a-zA-Z]{2,}$" |
-				sed "s|.*|server=/&/$proxy_list_dns\nnftset=/&/4#inet#$NFTABLE#$NFSET_DST_PROXY_V4,6#inet#$NFTABLE#$NFSET_DST_PROXY_V6|" \
-				>>"$FILE_V2RAY_DNSMASQ_CACHE"
+				sed "s|.*|server=/&/$proxy_list_dns\n \
+				nftset=/&/4#inet#v2ray#$NFSET_DST_PROXY_V4,6#inet#v2ray#$NFSET_DST_PROXY_V6|" \
+					>>"$FILE_V2RAY_DNSMASQ_CACHE"
 		else
 			echo "$proxy_content" |
 				grep -oE "([0-9a-zA-Z_-]+\.)+[a-zA-Z]{2,}$" |
-				sed "s|.*|nftset=/&/4#inet#$NFTABLE#$NFSET_DST_PROXY_V4,6#inet#$NFTABLE#$NFSET_DST_PROXY_V6|" \
-				>>"$FILE_V2RAY_DNSMASQ_CACHE"
+				sed "s|.*|nftset=/&/4#inet#v2ray#$NFSET_DST_PROXY_V4,6#inet#v2ray#$NFSET_DST_PROXY_V6|" \
+					>>"$FILE_V2RAY_DNSMASQ_CACHE"
 		fi
 	fi
 
