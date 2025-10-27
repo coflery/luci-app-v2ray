@@ -14,14 +14,14 @@ FILE_V2RAY_DNSMASQ=/tmp/dnsmasq.d/$NAME
 FILE_V2RAY_DNSMASQ_CACHE=/tmp/$NAME.dnsmasq.cache
 
 NFTABLE=$NAME
-NFSET_SRC_IGNORE_V4=src_ignore_v4
-NFSET_SRC_IGNORE_V6=src_ignore_v6
-NFSET_DST_PROXY_V4=dst_proxy_v4
-NFSET_DST_PROXY_V6=dst_proxy_v6
-NFSET_SRC_DIRECT_V4=src_direct_v4
-NFSET_SRC_DIRECT_V6=src_direct_v6
-NFSET_DST_DIRECT_V4=dst_direct_v4
-NFSET_DST_DIRECT_V6=dst_direct_v6
+NFSET_SRC_IGNORE_V4=v2ray_src_ignore_v4
+NFSET_SRC_IGNORE_V6=v2ray_src_ignore_v6
+NFSET_DST_PROXY_V4=v2ray_dst_proxy_v4
+NFSET_DST_PROXY_V6=v2ray_dst_proxy_v6
+NFSET_SRC_DIRECT_V4=v2ray_src_direct_v4
+NFSET_SRC_DIRECT_V6=v2ray_src_direct_v6
+NFSET_DST_DIRECT_V4=v2ray_dst_direct_v4
+NFSET_DST_DIRECT_V6=v2ray_dst_direct_v6
 
 OUTBOUND_SERVERS_V4=
 OUTBOUND_SERVERS_V6=
@@ -436,8 +436,8 @@ add_v2ray_redirect_rules() {
 
 	local port="$TRANSPARENT_PROXY_PORT"
 	local addition="$TRANSPARENT_PROXY_ADDITION"
-	local nftset_src_direct="$NFSET_SRC_DIRECT_V4"
-	local nftset_dst_direct="$NFSET_DST_DIRECT_V4"
+	local nfset_src_direct="$NFSET_SRC_DIRECT_V4"
+	local nfset_dst_direct="$NFSET_DST_DIRECT_V4"
 
 	test -n "$port" || return
 
@@ -446,8 +446,8 @@ add_v2ray_redirect_rules() {
 		*nat
 		:V2RAY -
 		-A V2RAY -p tcp -j RETURN -m mark --mark 0xff
-		-A V2RAY -p tcp -j RETURN -m set --match-set $nftset_src_direct src
-		-A V2RAY -p tcp -j RETURN -m set --match-set $nftset_dst_direct dst
+		-A V2RAY -p tcp -j RETURN -m set --match-set $nfset_src_direct src
+		-A V2RAY -p tcp -j RETURN -m set --match-set $nfset_dst_direct dst
 		-A V2RAY -p tcp $ext_args -j REDIRECT --to-ports $port
 		$(
 			if [ -n "$lan_devices" ]; then
@@ -467,8 +467,8 @@ add_v2ray_redirect_rules() {
 		*nat
 		:V2RAY -
 		-A V2RAY -p tcp -j RETURN -m mark --mark 0xff
-		-A V2RAY -p tcp -j RETURN -m set --match-set $nftset_src_direct src
-		-A V2RAY -p tcp -j RETURN -m set --match-set $nftset_dst_direct dst
+		-A V2RAY -p tcp -j RETURN -m set --match-set $nfset_src_direct src
+		-A V2RAY -p tcp -j RETURN -m set --match-set $nfset_dst_direct dst
 		-A V2RAY -p tcp $ext_args -j REDIRECT --to-ports $port
 		$(
 			if [ -n "$lan_devices" ]; then
@@ -500,7 +500,7 @@ add_v2ray_redirect_rules() {
 					done
 				fi
 			)
-			-A V2RAY -p udp -j RETURN -m set --match-set $nftset_dst_direct dst
+			-A V2RAY -p udp -j RETURN -m set --match-set $nfset_dst_direct dst
 			$(
 				if [ "$addition" = "dns" ]; then
 					echo "-A V2RAY -p udp --dport 53 -j TPROXY --on-port $port --tproxy-mark 0x1/0x1"
@@ -522,8 +522,8 @@ add_v2ray_redirect_rules() {
 
 			:V2RAY_MARK -
 			-A V2RAY_MARK -p udp -j RETURN -m mark --mark 0xff
-			-A V2RAY_MARK -p udp -j RETURN -m set --match-set $nftset_src_direct src
-			-A V2RAY_MARK -p udp -j RETURN -m set --match-set $nftset_dst_direct dst
+			-A V2RAY_MARK -p udp -j RETURN -m set --match-set $nfset_src_direct src
+			-A V2RAY_MARK -p udp -j RETURN -m set --match-set $nfset_dst_direct dst
 			$(
 				if [ "$addition" = "dns" ]; then
 					echo "-A V2RAY_MARK -p udp --dport 53 -j MARK --set-mark 1"
@@ -547,7 +547,7 @@ add_v2ray_redirect_rules() {
 				done
 			fi
 		)
-		-A V2RAY -p udp -j RETURN -m set --match-set $nftset_dst_direct dst
+		-A V2RAY -p udp -j RETURN -m set --match-set $nfset_dst_direct dst
 		$(
 				if [ "$addition" = "dns" ]; then
 					echo "-A V2RAY -p udp --dport 53 --on-ip 127.0.0.1 -j TPROXY --on-port $port --tproxy-mark 0x1/0x1"
@@ -569,8 +569,8 @@ add_v2ray_redirect_rules() {
 
 		:V2RAY_MARK -
 		-A V2RAY_MARK -p udp -j RETURN -m mark --mark 0xff
-		-A V2RAY_MARK -p udp -j RETURN -m set --match-set $nftset_src_direct src
-		-A V2RAY_MARK -p udp -j RETURN -m set --match-set $nftset_dst_direct dst
+		-A V2RAY_MARK -p udp -j RETURN -m set --match-set $nfset_src_direct src
+		-A V2RAY_MARK -p udp -j RETURN -m set --match-set $nfset_dst_direct dst
 		$(
 			if [ "$addition" = "dns" ]; then
 					echo "-A V2RAY_MARK -p udp --dport 53 -j MARK --set-mark 1"
@@ -592,12 +592,12 @@ add_v2ray_tproxy_rules() {
 
 	local port="$TRANSPARENT_PROXY_PORT"
 	local addition="$TRANSPARENT_PROXY_ADDITION"
-	local nftset_src_direct="$NFSET_SRC_DIRECT_V4"
-	local nftset_dst_direct="$NFSET_DST_DIRECT_V4"
-	local nftset_src_direct_v6="$NFSET_SRC_DIRECT_V6"
-	local nftset_dst_direct_v6="$NFSET_DST_DIRECT_V6"
-	local nftset_dst_proxy_v4="$NFSET_DST_PROXY_V4"
-	local nftset_dst_proxy_v6="$NFSET_DST_PROXY_V6"
+	local nfset_src_direct="$NFSET_SRC_DIRECT_V4"
+	local nfset_dst_direct="$NFSET_DST_DIRECT_V4"
+	local nfset_v2ray_src_direct_v6="$NFSET_SRC_DIRECT_V6"
+	local nfset_v2ray_dst_direct_v6="$NFSET_DST_DIRECT_V6"
+	local nfset_v2ray_dst_proxy_v4="$NFSET_DST_PROXY_V4"
+	local nfset_v2ray_dst_proxy_v6="$NFSET_DST_PROXY_V6"
 
 	test -n "$port" || return
 
@@ -613,8 +613,8 @@ add_v2ray_tproxy_rules() {
 		table inet $NFTABLE {
 			chain prerouting {
 				type filter hook prerouting priority mangle; policy accept;
-				ip daddr != @$nftset_dst_proxy_v4 return
-				ip6 daddr != @$nftset_dst_proxy_v6 return
+				ip daddr != @$nfset_v2ray_dst_proxy_v4 return
+				ip6 daddr != @$nfset_v2ray_dst_proxy_v6 return
 				meta l4proto {tcp, udp} tproxy to :$port meta mark set 1
 
 				#ip protocol {tcp, udp} tproxy ip to :$port meta mark set 1
@@ -659,6 +659,7 @@ create_v2ray_nfset() {
 		203.0.113.0/24
 		224.0.0.0/4
 		240.0.0.0/4
+		255.255.255.255
 	EOF
 	)"
 
