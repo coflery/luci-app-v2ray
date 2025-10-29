@@ -8,6 +8,7 @@
 "use strict";
 
 "require form";
+"require uci";
 "require v2ray";
 // "require view";
 
@@ -36,6 +37,15 @@ return L.view.extend<SectionItem[]>({
 
     o = s1.option(form.Value, "tag", _("Tag"));
 
+    o = s1.option(form.Flag, "disable_cache", _("Disable Cache"));
+    o = s1.option(form.Flag, "disable_fallback", _("Disable Fallback"));
+    o = s1.option(
+      form.Flag,
+      "disable_fallback_if_match",
+      _("Disable Fallback If Match")
+    );
+    o = s1.option(form.Flag, "skip_fallback", _("Skip Fallback"));
+
     o = s1.option(
       form.Value,
       "client_ip",
@@ -51,9 +61,15 @@ return L.view.extend<SectionItem[]>({
       "hosts",
       _("Hosts"),
       _(
-        "A list of static addresses, format: <code>domain|address</code>. eg: %s"
-      ).format("google.com|127.0.0.1")
+        "A list of static addresses, format: <code>domain|address1,address2 </code>. eg: %s"
+      ).format("google.com|127.0.0.1,10.0.0.1")
     );
+
+    o = s1.option(form.ListValue, "query_strategy", _("Query Strategy"));
+    o.value("UseIP");
+    o.value("UseIPv4");
+    o.value("UseIPv6");
+    o.default = "UseIP";
 
     o = s1.option(
       form.MultiValue,
@@ -74,6 +90,7 @@ return L.view.extend<SectionItem[]>({
     s2.anonymous = true;
     s2.addremove = true;
     s2.nodescription = true;
+    s2.sortable = true;
 
     o = s2.option(form.Value, "alias", _("Alias"));
     o.rmempty = false;
@@ -89,6 +106,10 @@ return L.view.extend<SectionItem[]>({
 
     o = s2.option(form.DynamicList, "expect_ips", _("Expect IPs"));
     o.modalonly = true;
+
+    o = s2.option(form.Value, "client_ip", _("Client IP"));
+    o.modalonly = true;
+    o.placeholder = _("Can be configured as a non-private IP address");
 
     return m.render();
   },

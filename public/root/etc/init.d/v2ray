@@ -733,14 +733,22 @@ add_dns_settings() {
 	if [ -n "$hosts" ]; then
 		json_add_object "hosts"
 
+		# fixme: multiple ip resolve still fail
 		local h
 		for h in $hosts; do
 			local domain="$(echo "$h" | cut -d'|' -f1)"
-			local ip="$(echo "$h" | cut -d'|' -f2)"
-
-			if [ -n "$domain" ] && [ -n "$ip" ]; then
-				json_add_string "$domain" "$ip"
+			local ip_arr
+			local OLD_IFS="$IFS"
+			IFS="," ip_arr="$(echo "$h" | cut -d'|' -f2)"
+			if [ -n "$domain" ] && [ -n "$ip_arr" ] ; then
+				json_add_array "$domain" 
+				local ip
+				for ip in $ip_arr ; do
+					json_add_string "" "$ip"
+				done
+				json_close_array
 			fi
+			IFS="$OLD_IFS"
 		done
 
 		json_close_object # hosts
@@ -761,10 +769,12 @@ add_dns_settings() {
 					json_add_object ""
 					json_add_string "address" "$address"
 
-					if [ -n "$port" ]; then
-						json_add_int "port" "$port"
-					else
-						json_add_int "port" "53"
+					if [ ${address:0:5} != "https" ]; then
+						if [ -n "$port" ]; then
+							json_add_int "port" "$port"
+						else
+							json_add_int "port" "53"
+						fi
 					fi
 
 					if [ -n "$domains" ]; then
@@ -787,6 +797,10 @@ add_dns_settings() {
 						done
 
 						json_close_array # expectIPs
+					fi
+					
+					if [ -n "$client_ip" ]; then
+						json_add_string "clientIp" "$client_ip"
 					fi
 
 					json_close_object
