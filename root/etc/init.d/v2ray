@@ -1846,49 +1846,48 @@ add_outbound_setting() {
 		json_add_string "security" "$ss_security"
 
 	case "${ss_security:-x}" in
-	"tls")
-		json_add_object "tlsSettings"
+		"tls")
+			json_add_object "tlsSettings"
 
-		test -n "$ss_tls_server_name" &&
-			json_add_string "serverName" "$ss_tls_server_name"
+			test -n "$ss_tls_server_name" &&
+				json_add_string "serverName" "$ss_tls_server_name"
 
-		if [ -n "$ss_tls_alpn" ]; then
-			json_add_array "alpn"
-			local al
-			for al in $ss_tls_alpn; do
-				json_add_string "" "$al"
-			done
-			json_close_array # destOverride
-		fi
+			if [ -n "$ss_tls_alpn" ]; then
+				json_add_array "alpn"
+				local al
+				for al in $ss_tls_alpn; do
+					json_add_string "" "$al"
+				done
+				json_close_array # destOverride
+			fi
 
-		if [ "$u_tls" != "" ]; then
-			json_add_string "fingerprint" "$u_tls"
-		fi
+			if [ "$u_tls" != "" ]; then
+				json_add_string "fingerprint" "$u_tls"
+			fi
 
-		if [ "x$ss_tls_rejectUnknownSni" = "x1" ]; then
-			json_add_boolean "rejectUnknownSni" "$ss_tls_rejectUnknownSni"
-		fi
+			if [ "x$ss_tls_rejectUnknownSni" = "x1" ]; then
+				json_add_boolean "rejectUnknownSni" "$ss_tls_rejectUnknownSni"
+			fi
 
-		json_add_boolean "allowInsecure" "$ss_tls_allow_insecure"
-		json_add_boolean "allowInsecureCiphers" "$ss_tls_allow_insecure_ciphers"
-		json_add_boolean "disableSystemRoot" "$ss_tls_disable_system_root"
-		json_add_array "certificates"
-		if [ -n "$ss_tls_cert_fiile" ]; then
-			json_add_object ""
-			json_add_string "certificateFile" "$ss_tls_cert_fiile"
-			json_add_string "keyFile" "$ss_tls_key_file"
-			test -n "$ss_tls_cert_usage" &&
-				json_add_string "usage" "$ss_tls_cert_usage"
-			json_close_object
-		fi
-		json_close_array # certificates
+			json_add_boolean "allowInsecure" "$ss_tls_allow_insecure"
+			json_add_boolean "allowInsecureCiphers" "$ss_tls_allow_insecure_ciphers"
+			json_add_boolean "disableSystemRoot" "$ss_tls_disable_system_root"
+			json_add_array "certificates"
+			if [ -n "$ss_tls_cert_fiile" ]; then
+				json_add_object ""
+				json_add_string "certificateFile" "$ss_tls_cert_fiile"
+				json_add_string "keyFile" "$ss_tls_key_file"
+				test -n "$ss_tls_cert_usage" &&
+					json_add_string "usage" "$ss_tls_cert_usage"
+				json_close_object
+			fi
+			json_close_array # certificates
 
-		json_close_object # tlsSettings
-		;;
-
-	*)
-		json_add_string "security" "none"
-		;;
+			json_close_object # tlsSettings
+			;;
+		*)
+			json_add_string "security" "none"
+			;;
 	esac
 
 	case "${ss_network:-x}" in
