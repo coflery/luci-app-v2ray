@@ -684,6 +684,55 @@ return L.view.extend<string[]>({
     o.value("none", _("None"));
     o.value("tls", "TLS");
 
+    // XTLS Flows
+    o = s.taboption(
+      "stream",
+      form.ListValue,
+      "s_xtls_flow",
+      _("xTLS Flow"),
+      _("Use xTLS flow")
+    );
+    o.modalonly = true;
+    o.value("none", _("None"));
+    o.value("xtls-rprx-direct");
+    o.value("xtls-rprx-direct-udp443");
+    o.value("xtls-rprx-origin");
+    o.value("xtls-rprx-origin-udp443");
+    o.value("xtls-rprx-splice");
+    o.value("xtls-rprx-splice-udp443");
+    o.value("xtls-rprx-vision");
+    o.value("xtls-rprx-vision-udp443");
+    o.depends("ss_security", "tls");
+
+    // TLS Version
+    o = s.taboption(
+      "stream",
+      form.ListValue,
+      "min_tls_version",
+      _("min TLS version")
+    );
+    o.modalonly = true;
+    o.value("", _("Default"));
+    o.value("1.0");
+    o.value("1.1");
+    o.value("1.2");
+    o.value("1.3");
+    o.depends("ss_security", "tls");
+
+    o = s.taboption(
+      "stream",
+      form.ListValue,
+      "max_tls_version",
+      _("max TLS version")
+    );
+    o.modalonly = true;
+    o.value("", _("Default"));
+    o.value("1.0");
+    o.value("1.1");
+    o.value("1.2");
+    o.value("1.3");
+    o.depends("ss_security", "tls");
+
     // Stream Settings - TLS
     o = s.taboption(
       "stream",
@@ -696,7 +745,7 @@ return L.view.extend<string[]>({
 
     o = s.taboption(
       "stream",
-      form.Value,
+      form.DynamicList,
       "ss_tls_alpn",
       "%s - %s".format("TLS", "ALPN")
     );
@@ -713,6 +762,15 @@ return L.view.extend<string[]>({
     o.value("safari");
     o.value("randomized");
     o.depends("ss_security", "tls");
+
+    o = s.taboption(
+      "stream",
+      form.Flag,
+      "ss_tls_rejectUnknownSni",
+      "%s - %s".format("TLS", _("Reject Unknown SNI"))
+    );
+    o.depends("ss_security", "tls");
+    o.modalonly = true;
 
     o = s.taboption(
       "stream",
@@ -754,23 +812,23 @@ return L.view.extend<string[]>({
     o.value("verify");
     o.value("issue");
 
-    o = s.taboption(
-      "stream",
-      form.Value,
-      "ss_tls_cert_fiile",
-      "%s - %s".format("TLS", _("Certificate file"))
-    );
-    o.modalonly = true;
-    o.depends("ss_security", "tls");
+    // o = s.taboption(
+    //   "stream",
+    //   form.Value,
+    //   "ss_tls_cert_fiile",
+    //   "%s - %s".format("TLS", _("Certificate file"))
+    // );
+    // o.modalonly = true;
+    // o.depends("ss_security", "tls");
 
-    o = s.taboption(
-      "stream",
-      form.Value,
-      "ss_tls_key_file",
-      "%s - %s".format("TLS", _("Key file"))
-    );
-    o.modalonly = true;
-    o.depends("ss_security", "tls");
+    // o = s.taboption(
+    //   "stream",
+    //   form.Value,
+    //   "ss_tls_key_file",
+    //   "%s - %s".format("TLS", _("Key file"))
+    // );
+    // o.modalonly = true;
+    // o.depends("ss_security", "tls");
 
     // Stream Settings - TCP
     o = s.taboption(

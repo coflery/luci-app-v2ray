@@ -21,6 +21,10 @@ msgstr ""
 msgid "metadata only"
 msgstr ""
 
+#: package/htdocs/luci-static/resources/view/v2ray/outbound.js:560
+msgid "Reject Unknown SNI"
+msgstr ""
+
 #: package/htdocs/luci-static/resources/view/v2ray/outbound.js:498
 msgid "Service name"
 msgstr ""
@@ -43,6 +47,11 @@ msgstr ""
 
 #: package/htdocs/luci-static/resources/view/v2ray/outbound.js:472
 msgid "Initial windows size"
+msgstr ""
+
+#: package/htdocs/luci-static/resources/view/v2ray/inbound.js:400
+#: package/htdocs/luci-static/resources/view/v2ray/outbound.js:500
+msgid "xTLS Flow"
 msgstr ""
 
 #: package/htdocs/luci-static/resources/view/v2ray/inbound.js:271
@@ -251,6 +260,11 @@ msgstr ""
 msgid "Client IP"
 msgstr ""
 
+#: package/htdocs/luci-static/resources/view/v2ray/inbound.js:188
+#: package/htdocs/luci-static/resources/view/v2ray/outbound.js:188
+msgid "Use xTLS flow"
+msgstr ""
+
 #: package/htdocs/luci-static/resources/view/v2ray/inbound.js:185
 msgid "Client User level"
 msgstr ""
@@ -365,6 +379,14 @@ msgstr ""
 
 #: package/htdocs/luci-static/resources/view/v2ray/outbound.js:156
 msgid "Dismiss"
+msgstr ""
+
+#: package/htdocs/luci-static/resources/view/v2ray/outbound.js:157
+msgid "min TLS version"
+msgstr ""
+
+#: package/htdocs/luci-static/resources/view/v2ray/outbound.js:158
+msgid "max TLS version"
 msgstr ""
 
 #: package/htdocs/luci-static/resources/view/v2ray/routing.js:51

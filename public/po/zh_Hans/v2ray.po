@@ -21,6 +21,10 @@ msgstr "版本"
 msgid "metadata only"
 msgstr "仅使用元数据推断"
 
+#: package/htdocs/luci-static/resources/view/v2ray/outbound.js:560
+msgid "Reject Unknown SNI"
+msgstr "拒绝未知的SNI"
+
 #: package/htdocs/luci-static/resources/view/v2ray/outbound.js:498
 msgid "Service name"
 msgstr "服务名称"
@@ -44,6 +48,11 @@ msgstr "无流许可"
 #: package/htdocs/luci-static/resources/view/v2ray/outbound.js:472
 msgid "Initial windows size"
 msgstr "初始窗口大小"
+
+#: package/htdocs/luci-static/resources/view/v2ray/inbound.js:400
+#: package/htdocs/luci-static/resources/view/v2ray/outbound.js:500
+msgid "xTLS Flow"
+msgstr "xTLS流控"
 
 #: package/htdocs/luci-static/resources/view/v2ray/inbound.js:271
 #: package/htdocs/luci-static/resources/view/v2ray/inbound.js:286
@@ -251,6 +260,11 @@ msgstr "用户 ID"
 msgid "Client IP"
 msgstr "客户端IP"
 
+#: package/htdocs/luci-static/resources/view/v2ray/inbound.js:188
+#: package/htdocs/luci-static/resources/view/v2ray/outbound.js:188
+msgid "Use xTLS flow"
+msgstr "使用xTLS流控"
+
 #: package/htdocs/luci-static/resources/view/v2ray/inbound.js:185
 msgid "Client User level"
 msgstr "用户等级"
@@ -366,6 +380,14 @@ msgstr "禁用系统自带的 CA 证书"
 #: package/htdocs/luci-static/resources/view/v2ray/outbound.js:156
 msgid "Dismiss"
 msgstr "取消"
+
+#: package/htdocs/luci-static/resources/view/v2ray/outbound.js:157
+msgid "min TLS version"
+msgstr "最小TLS版本"
+
+#: package/htdocs/luci-static/resources/view/v2ray/outbound.js:158
+msgid "max TLS version"
+msgstr "最高TLS版本"
 
 #: package/htdocs/luci-static/resources/view/v2ray/routing.js:51
 msgid "Domain"
