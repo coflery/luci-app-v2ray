@@ -58,6 +58,7 @@ return L.view.extend<string[]>({
     o.value("shadowsocks", "Shadowsocks");
     o.value("socks", "Socks");
     o.value("vmess", "VMess");
+    // o.value("trojan", "Trojan");
     // o.value("vless", "VLESS");
 
     // Settings - Dokodemo-door
@@ -354,6 +355,36 @@ return L.view.extend<string[]>({
     o.modalonly = true;
     o.depends("protocol", "socks");
     o.datatype = "uinteger";
+
+    // Settings - Trojan
+    o = s.taboption(
+      "general",
+      form.Value,
+      "s_trojan_address",
+      "%s - %s".format("Trojan", _("Address"))
+    );
+    o.modalonly = true;
+    o.depends("protocol", "trojan");
+    o.datatype = "host";
+
+    o = s.taboption(
+      "general",
+      form.Value,
+      "s_trojan_port",
+      "%s - %s".format("Trojan", _("Port"))
+    );
+    o.modalonly = true;
+    o.depends("protocol", "trojan");
+    o.datatype = "port";
+
+    o = s.taboption(
+      "general",
+      form.Value,
+      "s_trojan_password",
+      "%s - %s".format("Trojan", _("Password"))
+    );
+    o.modalonly = true;
+    o.depends("protocol", "trojan");
 
     // Settings - VMess
     o = s.taboption(
