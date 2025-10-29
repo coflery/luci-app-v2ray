@@ -1109,7 +1109,7 @@ msgstr "端口分配策略"
 #: package/htdocs/luci-static/resources/view/v2ray/inbound.js:36
 #: package/htdocs/luci-static/resources/view/v2ray/outbound.js:186
 msgid "Stream Settings"
-msgstr ""
+msgstr "数据流设置"
 
 #: package/htdocs/luci-static/resources/view/v2ray/policy.js:35
 #: package/htdocs/luci-static/resources/view/v2ray/policy.js:36
@@ -1394,17 +1394,11 @@ msgstr "wget: 不支持 SSL, 请安装 %s 或 %s。"
 #~ msgid "Stream Network"
 #~ msgstr "数据流网络"
 
-#~ msgid "Stream settings"
-#~ msgstr "底层传输配置"
-
 #~ msgid "Submit"
 #~ msgstr "提交"
 
 #~ msgid "Total: %s, Date: %s"
 #~ msgstr "总共：%s，日期：%s"
-
-#~ msgid "Transport settings is required."
-#~ msgstr "底层传输配置是必填项。"
 
 #~ msgid "Unsupported Link"
 #~ msgstr "不支持的链接"
