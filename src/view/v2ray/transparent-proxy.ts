@@ -203,7 +203,7 @@ return L.view.extend<[SectionItem[], SectionItem[]]>({
       "proxy_mode",
       _("Proxy mode"),
       _(
-        "If enabled, iptables rules will be added to pre-filter traffic and then sent to V2Ray."
+        "If enabled, nftables rules will be added to pre-filter traffic and then sent to V2Ray."
       )
     );
     o.value("default", _("Default"));

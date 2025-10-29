@@ -602,9 +602,9 @@ msgstr ""
 
 #: package/htdocs/luci-static/resources/view/v2ray/transparent-proxy.js:163
 msgid ""
-"If enabled, iptables rules will be added to pre-filter traffic and then sent "
+"If enabled, nftables rules will be added to pre-filter traffic and then sent "
 "to V2Ray."
-msgstr "如果启用，将会添加 iptables 规则来预先过滤流量，再发送给 V2Ray 处理。"
+msgstr "如果启用，将会添加 nftables 规则来预先过滤流量，再发送给 V2Ray 处理。"
 
 #: package/htdocs/luci-static/resources/view/v2ray/inbound.js:65
 #: package/htdocs/luci-static/resources/view/v2ray/inbound.js:76
