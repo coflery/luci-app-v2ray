@@ -273,10 +273,10 @@ inbound_section_validate() {
 		's_socks_ip:host' \
 		's_socks_user_level:uinteger' \
 		's_vmess_client_id:string' \
-		's_vmess_client_alter_id:and(uinteger, max(65535))' \
+		# 's_vmess_client_alter_id:and(uinteger, max(65535))' \
 		's_vmess_client_email:string' \
 		's_vmess_client_user_level:uinteger' \
-		's_vmess_default_alter_id:and(uinteger, max(65535))' \
+		# 's_vmess_default_alter_id:and(uinteger, max(65535))' \
 		's_vmess_default_user_level:uinteger' \
 		's_vmess_detour_to:string' \
 		's_vmess_disable_insecure_encryption:bool:0' \
@@ -362,7 +362,7 @@ outbound_section_validate() {
 		's_vmess_address:host' \
 		's_vmess_port:port' \
 		's_vmess_user_id:string' \
-		's_vmess_user_alter_id:and(uinteger, max(65535))' \
+		# 's_vmess_user_alter_id:and(uinteger, max(65535))' \
 		's_vmess_user_security:or("auto", "aes-128-gcm", "chacha20-poly1305", "none")' \
 		's_vmess_user_level:uinteger' \
 		's_vless_address:host' \
@@ -1276,8 +1276,8 @@ add_inbound_setting() {
 
 				json_add_string "id" "$s_vmess_client_id"
 
-				test -n "$s_vmess_client_alter_id" &&
-					json_add_int "alterId" "$s_vmess_client_alter_id"
+				# test -n "$s_vmess_client_alter_id" &&
+				# 	 json_add_int "alterId" "$s_vmess_client_alter_id"
 				test -n "$s_vmess_client_email" &&
 					json_add_string "email" "$s_vmess_client_email"
 				test -n "$s_vmess_client_user_level" &&
@@ -1289,8 +1289,8 @@ add_inbound_setting() {
 
 			json_add_object "default"
 
-			test -n "$s_vmess_default_alter_id" &&
-				json_add_int "alterId" "$s_vmess_default_alter_id"
+			# test -n "$s_vmess_default_alter_id" &&
+			# 	json_add_int "alterId" "$s_vmess_default_alter_id"
 			test -n "$s_vmess_default_user_level" &&
 				json_add_int "level" "$s_vmess_default_user_level"
 
@@ -1775,7 +1775,7 @@ add_outbound_setting() {
 			json_add_array "users"
 			json_add_object ""
 			json_add_string "id" "$s_vmess_user_id"
-			json_add_int "alterId" "$s_vmess_user_alter_id"
+			# json_add_int "alterId" "$s_vmess_user_alter_id"
 			test -n "$s_vmess_user_security" &&
 				json_add_string "security" "$s_vmess_user_security"
 			test -n "$s_vmess_user_level" &&

@@ -50,7 +50,7 @@ return L.view.extend<string[]>({
       uci.set("v2ray", sid, "s_vmess_address", address);
       uci.set("v2ray", sid, "s_vmess_port", port);
       uci.set("v2ray", sid, "s_vmess_user_id", vmess.id || "");
-      uci.set("v2ray", sid, "s_vmess_user_alter_id", vmess.aid || "");
+      // uci.set("v2ray", sid, "s_vmess_user_alter_id", vmess.aid || "");
       uci.set("v2ray", sid, "ss_security", tls);
 
       let hosts: string[] = [];
@@ -584,15 +584,15 @@ return L.view.extend<string[]>({
     o.modalonly = true;
     o.depends("protocol", "vmess");
 
-    o = s.taboption(
-      "general",
-      form.Value,
-      "s_vmess_user_alter_id",
-      "%s - %s".format("VMess", _("Alter ID"))
-    );
-    o.modalonly = true;
-    o.depends("protocol", "vmess");
-    o.datatype = "and(uinteger, max(65535))";
+    // o = s.taboption(
+    //   "general",
+    //   form.Value,
+    //   "s_vmess_user_alter_id",
+    //   "%s - %s".format("VMess", _("Alter ID"))
+    // );
+    // o.modalonly = true;
+    // o.depends("protocol", "vmess");
+    // o.datatype = "and(uinteger, max(65535))";
 
     o = s.taboption(
       "general",
