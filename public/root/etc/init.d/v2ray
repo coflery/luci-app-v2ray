@@ -187,6 +187,7 @@ routing_section_validate() {
 	uci_validate_section "$NAME" "routing" "$1" \
 		'enabled:bool:0' \
 		'domain_strategy:or("AsIs", "IPIfNonMatch", "IPOnDemand")' \
+		'domain_matcher:or("linear", "mph")' \
 		'rules:list(uci("v2ray", "@routing_rule"))' \
 		'balancers:list(uci("v2ray", "@routing_balancer"))'
 }
@@ -204,7 +205,8 @@ routing_rule_section_validate() {
 		'protocol:list(or("http", "tls", "bittorrent"))' \
 		'attrs:string' \
 		'outbound_tag:string' \
-		'balancer_tag:string'
+		'balancer_tag:string' \
+		'domain_matcher_r:or("", "linear", "mph")'
 }
 
 routing_balancer_section_validate() {
@@ -899,6 +901,9 @@ add_routing_settings() {
 	test -n "$domain_strategy" &&
 		json_add_string "domainStrategy" "$domain_strategy"
 
+	test -n "$domain_matcher" &&
+		json_add_string "domainMatcher" "$domain_matcher"
+
 	if [ -n "$rules" ]; then
 		json_add_array "rules"
 
@@ -987,6 +992,8 @@ add_routing_settings() {
 					json_add_string "outboundTag" "$outbound_tag"
 				test -n "$balancer_tag" &&
 					json_add_string "balancerTag" "$balancer_tag"
+				test -n "$domain_matcher_r" &&
+					json_add_string "domainMatcher" "$domain_matcher_r"
 
 				json_close_object
 			fi
