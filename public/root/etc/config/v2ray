@@ -120,6 +120,7 @@ config routing_rule 'direct_ntp'
 
 config routing_balancer 'routing_balancer_1'
 	option tag 'balancer'
+	option strategy_type 'random'
 	list selector 'a'
 	list selector 'ab'
 
