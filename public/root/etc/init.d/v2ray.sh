@@ -441,6 +441,7 @@ add_v2ray_redirect_rules() {
 
 	test -n "$port" || return
 
+
 	cat <<-EOF >/tmp/redirect_nftables.txt
 		*nat
 		:V2RAY -
