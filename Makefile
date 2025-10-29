@@ -11,7 +11,6 @@ PKG_RELEASE:=1
 
 PKG_LICENSE:=MIT
 PKG_MAINTAINER:=Xingwang Liao <kuoruan@gmail.com>
-PKG_BUILD_DEPENDS:=luci-base/host
 
 LUCI_TITLE:=LuCI support for v2ray
 LUCI_DEPENDS:=+jshn
