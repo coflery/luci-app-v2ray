@@ -348,6 +348,7 @@ outbound_section_validate() {
 		's_http_server_port:port' \
 		's_http_account_user:string' \
 		's_http_account_pass:string' \
+		's_loopback_inboundtag:string' \
 		's_shadowsocks_email:string' \
 		's_shadowsocks_address:host' \
 		's_shadowsocks_port:port' \
@@ -1688,6 +1689,14 @@ add_outbound_setting() {
 
 			json_close_array # servers
 			json_close_object # settings
+			;;
+		"loopback")
+			json_add_object "settings"
+
+			if [ -n "$s_loopback_inboundtag" ]; then
+				json_add_string "inboundTag" "$s_loopback_inboundtag"
+			fi
+			json_close_object
 			;;
 		"mtproto")
 			json_add_object "settings"

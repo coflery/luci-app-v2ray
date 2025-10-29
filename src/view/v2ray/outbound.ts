@@ -232,9 +232,12 @@ return L.view.extend<string[]>({
     ]);
   },
   load: function () {
-    return v2ray.getLocalIPs();
+    return Promise.all([
+      v2ray.getLocalIPs(),
+      //v2ray.getSections("inbound", "tag"),
+    ]);
   },
-  render: function (localIPs: string[] = []) {
+  render: function ([localIPs = []]) {
     const m = new form.Map(
       "v2ray",
       "%s - %s".format(_("V2Ray"), _("Outbound"))
@@ -277,6 +280,7 @@ return L.view.extend<string[]>({
     o.value("trojan", "Trojan");
     o.value("vmess", "VMess");
     o.value("vless", "VLESS");
+    o.value("loopback", "Loopback");
 
     // Settings Blackhole
     o = s.taboption(
@@ -667,6 +671,19 @@ return L.view.extend<string[]>({
     o.modalonly = true;
     o.depends("protocol", "vless");
     o.value("none", "none");
+
+    // Settings Loopback
+    o = s.taboption(
+      "general",
+      form.Value,
+      "s_loopback_inboundtag",
+      "%s - %s".format("Loopback", _("Inbound tag"))
+    );
+    o.modalonly = true;
+    o.depends("protocol", "loopback");
+    // for (const s in inboundSections) {
+    //   o.value(s.caption, s.caption);
+    // }
 
     /** Stream Settings **/
     o = s.taboption("stream", form.ListValue, "ss_network", _("Network"));

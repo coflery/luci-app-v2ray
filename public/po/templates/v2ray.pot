@@ -635,6 +635,7 @@ msgstr ""
 msgid "Inbound"
 msgstr ""
 
+#: package/htdocs/luci-static/resources/view/v2ray/outbound.js:65
 #: package/htdocs/luci-static/resources/view/v2ray/routing.js:65
 msgid "Inbound tag"
 msgstr ""
