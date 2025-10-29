@@ -363,8 +363,9 @@ outbound_section_validate() {
 		's_vless_user_id:string' \
 		's_vless_user_level:uinteger' \
 		's_vless_user_encryption:or("none")' \
-		'ss_network:or("tcp", "kcp", "ws", "http", "domainsocket", "quic")' \
+		'ss_network:or("tcp", "kcp", "ws", "http", "domainsocket", "quic", "grpc")' \
 		'ss_security:or("none", "tls")' \
+		's_xtls_flow:or("none", "xtls-rprx-direct", "xtls-rprx-direct-udp443", "xtls-rprx-origin", "xtls-rprx-origin-udp443", "xtls-rprx-splice", "xtls-rprx-splice-udp443", "xtls-rprx-vision", "xtls-rprx-vision-udp443")' \
 		'ss_tls_server_name:host' \
 		'ss_tls_alpn:string' \
 		'ss_tls_allow_insecure:bool:0' \
@@ -400,6 +401,12 @@ outbound_section_validate() {
 		'ss_quic_header_type:or("none", "srtp", "utp", "wechat-video", "dtls", "wireguard")' \
 		'ss_sockopt_mark:uinteger' \
 		'ss_sockopt_tcp_fast_open:or("0", "1")' \
+		'service_name:string' \
+		'multi_mode:bool:0' \
+		'idle_timeout:uinteger' \
+		'health_check_timeout:uinteger' \
+		'permit_without_stream:bool:0' \
+		'initial_windows_size:uinteger' \
 		'stream_settings:string' \
 		'proxy_settings_tag:string' \
 		'mux_enabled:bool:0' \
@@ -1968,6 +1975,26 @@ add_outbound_setting() {
 			fi
 
 			json_close_object # quicSettings
+			;;
+			# outbound gRPC
+		"grpc")
+			json_add_string "security" "$ss_security"
+			json_add_object "grpcSettings"
+			test -n "$service_name" &&
+				json_add_string "serviceName" "$service_name"
+			if [ "x$multi_mode" = "x1"]; then
+				json_add_boolean "multiMode" "$multi_mode"
+			fi
+			test -n "$idle_timeout" &&
+				json_add_int "idle_timeout" "$idle_timeout"
+			test -n "$health_check_timeout" &&
+				json_add_int "health_check_timeout" "$health_check_timeout"
+			if [ "x$permit_without_stream" = "x1"]; then
+				json_add_boolean "permit_without_stream" "$permit_without_stream"
+			fi
+			test -n "$initial_windows_size" &&
+				json_add_int "initial_windows_size" "$initial_windows_size"
+			json_close_object # grpcSettings
 			;;
 	esac
 
