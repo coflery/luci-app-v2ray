@@ -225,10 +225,6 @@ msgstr ""
 msgid "CHNRoute"
 msgstr ""
 
-#: package/htdocs/luci-static/resources/view/v2ray/transparent-proxy.js:109
-msgid "CHNRoute list updated."
-msgstr ""
-
 #: package/htdocs/luci-static/resources/view/v2ray/transparent-proxy.js:165
 msgid "CN Direct"
 msgstr ""
@@ -450,15 +446,11 @@ msgid "Extra proxy list"
 msgstr ""
 
 #: package/htdocs/luci-static/resources/view/v2ray/transparent-proxy.js:76
-msgid "Failed to decode GFWList."
-msgstr ""
-
-#: package/htdocs/luci-static/resources/view/v2ray/transparent-proxy.js:117
-msgid "Failed to fetch CHNRoute list."
+msgid "Failed to decode data."
 msgstr ""
 
 #: package/htdocs/luci-static/resources/view/v2ray/transparent-proxy.js:79
-msgid "Failed to fetch GFWList."
+msgid "Failed to fetch data."
 msgstr ""
 
 #: package/htdocs/luci-static/resources/view/v2ray/about.js:29
@@ -495,7 +487,7 @@ msgid "GFWList mirror"
 msgstr ""
 
 #: package/htdocs/luci-static/resources/view/v2ray/transparent-proxy.js:68
-msgid "GFWList updated."
+msgid "%s update completed"
 msgstr ""
 
 #: package/htdocs/luci-static/resources/view/v2ray/inbound.js:35
