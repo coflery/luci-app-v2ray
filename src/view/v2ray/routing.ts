@@ -47,6 +47,14 @@ return L.view.extend<SectionItem[][]>({
     o.value("IPOnDemand");
 
     o = s1.option(
+      form.ListValue,
+      "domain_matcher",
+      _("Domain name matching algorithm")
+    );
+    o.value("linear");
+    o.value("mph");
+
+    o = s1.option(
       form.MultiValue,
       "rules",
       _("Rules"),
@@ -120,6 +128,15 @@ return L.view.extend<SectionItem[][]>({
     o = s2.option(form.Value, "balancer_tag", _("Balancer tag"));
     o.modalonly = true;
     o.depends("outbound_tag", "");
+
+    o = s2.option(
+      form.ListValue,
+      "domain_matcher_r",
+      _("Domain name matching algorithm")
+    );
+    o.value("");
+    o.value("linear");
+    o.value("mph");
 
     const s3 = m.section(
       form.TypedSection,
