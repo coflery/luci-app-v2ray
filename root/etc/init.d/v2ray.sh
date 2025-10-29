@@ -2473,7 +2473,6 @@ start_instance() {
 	procd_open_instance "$NAME.$section"
 	procd_set_param command "/usr/libexec/v2ray/v2ray_entry.sh"
 	procd_append_param env V2RAY_BIN_FILE="$v2ray_file"
-
 	procd_append_param command "run"
 	procd_append_param command "--config=$temp_config"
 	procd_set_param respawn
@@ -2489,8 +2488,8 @@ start_instance() {
 	if [ "$mem_percentage" -gt "0" ]; then
 		local mem_total="$(awk '/MemTotal/ {print $2}' /proc/meminfo)"
 		if [ -n "$mem_total" ]; then
-			local use_mem="$(expr $mem_total \* $mem_percentage \* 1024 \/ 100)"
-			procd_append_param limits as="$use_mem $use_mem"
+			local use_mem_in_kib="$(expr $mem_total \* $mem_percentage \/ 100)"
+			procd_append_param env GOMEMLIMIT="${use_mem_in_kib}KiB"
 		fi
 	fi
 
