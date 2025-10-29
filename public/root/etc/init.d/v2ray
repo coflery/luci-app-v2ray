@@ -525,21 +525,21 @@ add_v2ray_tproxy_rules() {
 			fi
 		)
 
-		:V2RAY_MASK -
-		-A V2RAY_MASK -j RETURN -m mark --mark 0xff
-		-A V2RAY_MASK -j RETURN -m set --match-set $ipset_src_direct src
-		-A V2RAY_MASK -j RETURN -m set --match-set $ipset_dst_direct dst
-		-A V2RAY_MASK -p tcp $ext_args -j MARK --set-mark 1
+		:V2RAY_MARK -
+		-A V2RAY_MARK -j RETURN -m mark --mark 0xff
+		-A V2RAY_MARK -j RETURN -m set --match-set $ipset_src_direct src
+		-A V2RAY_MARK -j RETURN -m set --match-set $ipset_dst_direct dst
+		-A V2RAY_MARK -p tcp $ext_args -j MARK --set-mark 1
 		$(
 			if [ -n "$addition" ]; then
 				if [ "$addition" = "dns" ]; then
-					echo "-A V2RAY_MASK -p udp --dport 53 -j MARK --set-mark 1"
+					echo "-A V2RAY_MARK -p udp --dport 53 -j MARK --set-mark 1"
 				else
-					echo "-A V2RAY_MASK -p udp -j MARK --set-mark 1"
+					echo "-A V2RAY_MARK -p udp -j MARK --set-mark 1"
 				fi
 			fi
 		)
-		-A OUTPUT -j V2RAY_MASK
+		-A OUTPUT -j V2RAY_MARK
 		COMMIT
 	EOF
 }
