@@ -212,6 +212,7 @@ routing_rule_section_validate() {
 routing_balancer_section_validate() {
 	uci_validate_section "$NAME" "routing_balancer" "$1" \
 		'tag:string' \
+		'strategy_type:or("random", "leastPing")' \
 		'selector:list(string)'
 }
 
@@ -411,6 +412,7 @@ outbound_section_validate() {
 		'ss_quic_key:string' \
 		'ss_quic_header_type:or("none", "srtp", "utp", "wechat-video", "dtls", "wireguard")' \
 		'ss_sockopt_mark:uinteger' \
+		'ss_sockopt_domain_strategy:or("", "AsIs", "UseIP", "UseIPv4", "UseIPv6")' \
 		'ss_sockopt_tcp_fast_open:or("0", "1")' \
 		'service_name:string' \
 		'multi_mode:bool:0' \
@@ -1010,6 +1012,10 @@ add_routing_settings() {
 			if routing_balancer_section_validate "$bs"; then
 				json_add_object ""
 				json_add_string "tag" "$tag"
+
+				json_add_object "strategy"
+				json_add_string "type" "$strategy_type"
+				json_close_object
 
 				json_add_array "selector"
 
@@ -2068,6 +2074,11 @@ add_outbound_setting() {
 	esac
 
 	json_add_object "sockopt"
+
+	if [ "$protocol" != "blackhole" ] && [ "$protocol" != "freedom" ] && [ "$protocol" != "dns" ]; then
+		test -n "ss_sockopt_domain_strategy" &&
+			json_add_string "domainStrategy" "$ss_sockopt_domain_strategy"
+	fi
 
 	if [ -n "$TRANSPARENT_PROXY_PORT" ]; then
 		json_add_int "mark" "255"
