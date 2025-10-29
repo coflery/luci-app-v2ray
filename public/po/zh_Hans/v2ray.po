@@ -13,6 +13,14 @@ msgstr "配置文件中的 <code>transport</code> 项，JSON 字符串"
 msgid "Enabled DNS log"
 msgstr "开启DNS查询日志"
 
+#: package/htdocs/luci-static/resources/view/v2ray/inbound.js:398
+msgid "Version"
+msgstr "版本"
+
+#: package/htdocs/luci-static/resources/view/v2ray/inbound.js:399
+msgid "metadata only"
+msgstr "仅使用元数据推断"
+
 #: package/htdocs/luci-static/resources/view/v2ray/inbound.js:271
 #: package/htdocs/luci-static/resources/view/v2ray/inbound.js:286
 #: package/htdocs/luci-static/resources/view/v2ray/inbound.js:335
