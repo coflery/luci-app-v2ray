@@ -1229,3 +1229,27 @@ msgstr ""
 msgctxt "libustream-openssl"
 msgid "wget: SSL support not available, please install %s or %s."
 msgstr ""
+
+#: package/htdocs/luci-static/resources/view/v2ray/observatory.ts:99
+msgid "Observatory"
+msgstr ""
+
+#: package/htdocs/luci-static/resources/view/v2ray/observatory.ts:100
+msgid "ProbeURL"
+msgstr ""
+
+#: package/htdocs/luci-static/resources/view/v2ray/observatory.ts:101
+msgid "ProbeInterval"
+msgstr ""
+
+#: package/htdocs/luci-static/resources/view/v2ray/observatory.ts:102
+msgid "SubjectSelector"
+msgstr ""
+
+#: package/htdocs/luci-static/resources/view/v2ray/observatory.ts:103
+msgid "empty use the built-in value"
+msgstr ""
+
+#: package/htdocs/luci-static/resources/view/v2ray/observatory.ts:103
+msgid "A valid URL, it will be get request to testing. eg: <code>%s</code>."
+msgstr ""
