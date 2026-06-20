@@ -11,6 +11,7 @@ PKG_RELEASE:=#{release}
 
 PKG_LICENSE:=#{license}
 PKG_MAINTAINER:=#{author}
+PKG_BUILD_DEPENDS:=luci-base/host
 
 LUCI_TITLE:=#{description}
 LUCI_DEPENDS:=+jshn

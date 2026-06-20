@@ -100,6 +100,7 @@ return L.view.extend<SectionItem[][]>({
       )
     );
     o.datatype = "directory";
+    o.rmempty = true;
     o.placeholder = "/usr/bin";
 
     o = s.option(

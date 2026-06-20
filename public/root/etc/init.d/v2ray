@@ -2421,7 +2421,7 @@ start_instance() {
 	procd_set_param respawn
 
 	if [ -n "$asset_location" ] && [ -d "$asset_location" ]; then
-		procd_set_param env V2RAY_LOCATION_ASSET="$asset_location"
+		procd_append_param env V2RAY_LOCATION_ASSET="$asset_location"
 	fi
 
 	# cat /proc/PID/limits to see if limits works
