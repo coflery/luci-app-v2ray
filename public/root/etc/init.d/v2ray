@@ -19,6 +19,7 @@ NFSET_SRC_IGNORE_V6=src_ignore_v6
 NFSET_DST_PROXY_V4=dst_proxy_v4
 NFSET_DST_PROXY_V6=dst_proxy_v6
 NFSET_SRC_DIRECT_V4=src_direct_v4
+NFSET_SRC_DIRECT_V6=src_direct_v6
 NFSET_DST_DIRECT_V4=dst_direct_v4
 NFSET_DST_DIRECT_V6=dst_direct_v6
 
@@ -437,6 +438,27 @@ add_v2ray_redirect_rules() {
 
 	test -n "$port" || return
 
+	cat <<-EOF >/tmp/redirect_nftables.txt
+		*nat
+		:V2RAY -
+		-A V2RAY -p tcp -j RETURN -m mark --mark 0xff
+		-A V2RAY -p tcp -j RETURN -m set --match-set $nfset_src_direct src
+		-A V2RAY -p tcp -j RETURN -m set --match-set $nfset_dst_direct dst
+		-A V2RAY -p tcp $ext_args -j REDIRECT --to-ports $port
+		$(
+			if [ -n "$lan_devices" ]; then
+				local device
+				for device in $lan_devices; do
+					echo "-A PREROUTING -p tcp -i $device -j V2RAY"
+				done
+			else
+				echo "-A PREROUTING -p tcp -j V2RAY"
+			fi
+		)
+		-A OUTPUT -p tcp -j V2RAY
+		COMMIT
+	EOF
+
 	iptables-restore --noflush <<-EOF 2>/dev/null
 		*nat
 		:V2RAY -
@@ -462,7 +484,7 @@ add_v2ray_redirect_rules() {
 		ip rule add fwmark 1 lookup 100
 		ip route add local 0.0.0.0/0 dev lo table 100 2>/dev/null
 
-		iptables-restore --noflush <<-EOF 2>/dev/null
+		cat <<-EOF >/tmp/redirect_nftables_1.txt
 			*mangle
 			:V2RAY -
 			-A V2RAY -p udp -j RETURN -m mark --mark 0xff
@@ -479,7 +501,54 @@ add_v2ray_redirect_rules() {
 				if [ "$addition" = "dns" ]; then
 					echo "-A V2RAY -p udp --dport 53 -j TPROXY --on-port $port --tproxy-mark 0x1/0x1"
 				else
-					echo "-A V2RAY -p udp -j TPROXY --on-port $port --tproxy-mark 0x1/0x1"
+					echo "-A V2RAY -p udp -j TPROXY --on-ip 127.0.0.1 --on-port $port --tproxy-mark 0x1/0x1"
+				fi
+
+				if [ -n "$lan_devices" ]; then
+					local device
+					for device in $lan_devices; do
+						echo "-A PREROUTING -p udp -i $device -j V2RAY"
+					done
+
+					echo "-A PREROUTING -p udp -j V2RAY -m mark --mark 0x1"
+				else
+					echo "-A PREROUTING -p udp -j V2RAY"
+				fi
+			)
+
+			:V2RAY_MARK -
+			-A V2RAY_MARK -p udp -j RETURN -m mark --mark 0xff
+			-A V2RAY_MARK -p udp -j RETURN -m set --match-set $nfset_src_direct src
+			-A V2RAY_MARK -p udp -j RETURN -m set --match-set $nfset_dst_direct dst
+			$(
+				if [ "$addition" = "dns" ]; then
+					echo "-A V2RAY_MARK -p udp --dport 53 -j MARK --set-mark 1"
+				else
+					echo "-A V2RAY_MARK -p udp -j MARK --set-mark 1"
+				fi
+			)
+			-A OUTPUT -p udp -j V2RAY_MARK
+			COMMIT
+		EOF
+
+		iptables-restore --noflush <<-EOF 2>/dev/null
+			*mangle
+			:V2RAY -
+			-A V2RAY -p udp -j RETURN -m mark --mark 0xff
+			$(
+				if [ -n "$lan_ipaddrs" ]; then
+					local ipaddr
+					for ipaddr in $lan_ipaddrs; do
+						echo "-A V2RAY -p udp --dport 53 -d $ipaddr --on-ip 127.0.0.1 -j TPROXY --on-port $port --tproxy-mark 0x1/0x1"
+					done
+				fi
+			)
+			-A V2RAY -p udp -j RETURN -m set --match-set $nfset_dst_direct dst
+			$(
+				if [ "$addition" = "dns" ]; then
+					echo "-A V2RAY -p udp --dport 53 --on-ip 127.0.0.1 -j TPROXY --on-port $port --tproxy-mark 0x1/0x1"
+				else
+					echo "-A V2RAY -p udp --on-ip 127.0.0.1 -j TPROXY --on-port $port --tproxy-mark 0x1/0x1"
 				fi
 
 				if [ -n "$lan_devices" ]; then
@@ -515,81 +584,57 @@ add_v2ray_tproxy_rules() {
 	local ext_args="$1"
 	local lan_devices="$2"
 	local lan_ipaddrs="$3"
+	local lan_ipaddrs6="$4"
 
 	local port="$TRANSPARENT_PROXY_PORT"
 	local addition="$TRANSPARENT_PROXY_ADDITION"
 	local nfset_src_direct="$NFSET_SRC_DIRECT_V4"
 	local nfset_dst_direct="$NFSET_DST_DIRECT_V4"
+	local nfset_src_direct_v6="$NFSET_SRC_DIRECT_V6"
+	local nfset_dst_direct_v6="$NFSET_DST_DIRECT_V6"
+	local nfset_dst_proxy_v4="$NFSET_DST_PROXY_V4"
+	local nfset_dst_proxy_v6="$NFSET_DST_PROXY_V6"
 
 	test -n "$port" || return
 
 	# https://www.kernel.org/doc/Documentation/networking/tproxy.txt
 
-	ip rule add fwmark 1 lookup 100
+	ip rule add fwmark 0x1/0x3 lookup 100
 	ip route add local 0.0.0.0/0 dev lo table 100 2>/dev/null
 
-	iptables-restore --noflush <<-EOF 2>/dev/null
-		*mangle
-		:V2RAY -
-		-A V2RAY -j RETURN -m mark --mark 0xff
-		$(
-			if [ -n "$addition" ] && [ -n "$lan_ipaddrs" ]; then
-				local ipaddr
-				for ipaddr in $lan_ipaddrs; do
-					echo "-A V2RAY -p udp --dport 53 -d $ipaddr -j TPROXY --on-port $port --tproxy-mark 0x1/0x1"
-				done
-			fi
-		)
-		-A V2RAY -j RETURN -m set --match-set $nfset_src_direct src
-		-A V2RAY -j RETURN -m set --match-set $nfset_dst_direct dst
-		-A V2RAY -p tcp $ext_args -j TPROXY --on-port $port --tproxy-mark 0x1/0x1
-		$(
-			if [ -n "$addition" ]; then
-				if [ "$addition" = "dns" ]; then
-					echo "-A V2RAY -p udp --dport 53 -j TPROXY --on-port $port --tproxy-mark 0x1/0x1"
-				else
-					echo "-A V2RAY -p udp -j TPROXY --on-port $port --tproxy-mark 0x1/0x1"
-				fi
-			fi
+	ip -6 rule add fwmark 0x1/0x3 lookup 100
+	ip -6 route add local ::/0 dev lo table 100
 
-			if [ -n "$lan_devices" ]; then
-				local device
-				for device in $lan_devices; do
-					echo "-A PREROUTING -i $device -j V2RAY"
-				done
+	cat <<-EOF >/tmp/tproxy_nftables.txt
+		table inet $NFTABLE {
+			chain prerouting {
+				type filter hook prerouting priority mangle; policy accept;
+				ip daddr != @$nfset_dst_proxy_v4 return
+				ip6 daddr != @$nfset_dst_proxy_v6 return
+				meta l4proto {tcp, udp} tproxy to :$port meta mark set 1
 
-				echo "-A PREROUTING -j V2RAY -m mark --mark 0x1"
-			else
-				echo "-A PREROUTING -j V2RAY"
-			fi
-		)
-
-		:V2RAY_MARK -
-		-A V2RAY_MARK -j RETURN -m mark --mark 0xff
-		-A V2RAY_MARK -j RETURN -m set --match-set $nfset_src_direct src
-		-A V2RAY_MARK -j RETURN -m set --match-set $nfset_dst_direct dst
-		-A V2RAY_MARK -p tcp $ext_args -j MARK --set-mark 1
-		$(
-			if [ -n "$addition" ]; then
-				if [ "$addition" = "dns" ]; then
-					echo "-A V2RAY_MARK -p udp --dport 53 -j MARK --set-mark 1"
-				else
-					echo "-A V2RAY_MARK -p udp -j MARK --set-mark 1"
-				fi
-			fi
-		)
-		-A OUTPUT -j V2RAY_MARK
-		COMMIT
+				#ip protocol {tcp, udp} tproxy ip to :$port meta mark set 1
+				#ip6 nexthdr {tcp, udp} tproxy ip6 to :$port meta mark set 1
+			}
+		}
 	EOF
+
+	nft -f /tmp/tproxy_nftables.txt
 }
 
 clear_v2ray_rules() {
-	iptables-save --counters | grep -v "V2RAY" | iptables-restore --counters
-
 	while ip rule del fwmark 1 lookup 100 2>/dev/null; do true; done
+	while ip rule del fwmark 0x1 lookup 100 2>/dev/null; do true; done
+	while ip rule del fwmark 0x1/0x3 lookup 100 2>/dev/null; do true; done
 
 	ip route flush table 100
 	ip route del local 0.0.0.0/0 dev lo table 100 2>/dev/null
+
+	while ip -6 rule del fwmark 1 lookup 100 2>/dev/null; do true; done
+	while ip -6 rule del fwmark 0x1 lookup 100 2>/dev/null; do true; done
+	while ip -6 rule del fwmark 0x1/0x3 lookup 100 2>/dev/null; do true; done
+	ip -6 route flush table 100
+	ip -6 route del local ::/0 dev lo table 100 2>/dev/null
 }
 
 create_v2ray_nfset() {
@@ -644,6 +689,7 @@ create_v2ray_nfset() {
 		add set inet $NFTABLE $NFSET_DST_PROXY_V4 { type ipv4_addr; flags interval; timeout 1h; }
 		add set inet $NFTABLE $NFSET_DST_PROXY_V6 { type ipv6_addr; flags interval; timeout 1h; }
 		add set inet $NFTABLE $NFSET_SRC_DIRECT_V4 { type ipv4_addr; flags interval; }
+		add set inet $NFTABLE $NFSET_SRC_DIRECT_V6 { type ipv6_addr; flags interval; }
 		add set inet $NFTABLE $NFSET_DST_DIRECT_V4 { type ipv4_addr; flags interval; timeout 1h; }
 		add set inet $NFTABLE $NFSET_DST_DIRECT_V6 { type ipv6_addr; flags interval; timeout 1h; }
 		$(echo "$reserved_v4" | sed "s/.*/add element inet $NFTABLE $NFSET_DST_DIRECT_V4 {&}/")
