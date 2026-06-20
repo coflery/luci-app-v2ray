@@ -255,7 +255,7 @@ inbound_section_validate() {
 		's_dokodemo_door_network:list(or("tcp", "udp"))' \
 		's_dokodemo_door_timeout:uinteger' \
 		's_dokodemo_door_follow_redirect:bool:0' \
-		's_dokodemo_door_user_level:uiterger' \
+		's_dokodemo_door_user_level:uinteger' \
 		's_http_account_user:string' \
 		's_http_account_pass:string' \
 		's_http_allow_transparent:bool:0' \
@@ -386,6 +386,8 @@ outbound_section_validate() {
 		'ss_tls_cert_usage:or("encipherment", "verify", "issue")' \
 		'ss_tls_cert_fiile:string' \
 		'ss_tls_key_file:string' \
+		'min_tls_version:or("", "1.0", "1.1", "1.2", "1.3")' \
+		'max_tls_version:or("", "1.0", "1.1", "1.2", "1.3")' \
 		'ss_tcp_header_type:or("none", "http")' \
 		'ss_tcp_header_request_version:string' \
 		'ss_tcp_header_request_method:string' \
@@ -1400,6 +1402,7 @@ add_inbound_setting() {
 			json_add_boolean "rejectUnknownSni" "$ss_tls_rejectUnknownSni"
 		fi
 
+		json_add_boolean "allowInsecure" "$ss_tls_allow_insecure"
 		json_add_boolean "allowInsecureCiphers" "$ss_tls_allow_insecure_ciphers"
 		json_add_boolean "disableSystemRoot" "$ss_tls_disable_system_root"
 
@@ -1910,6 +1913,10 @@ add_outbound_setting() {
 			json_add_boolean "allowInsecure" "$ss_tls_allow_insecure"
 			json_add_boolean "allowInsecureCiphers" "$ss_tls_allow_insecure_ciphers"
 			json_add_boolean "disableSystemRoot" "$ss_tls_disable_system_root"
+			test -n "$min_tls_version" &&
+				json_add_string "minVersion" "$min_tls_version"
+			test -n "$max_tls_version" &&
+				json_add_string "maxVersion" "$max_tls_version"
 			json_add_array "certificates"
 			if [ -n "$ss_tls_cert_fiile" ]; then
 				json_add_object ""
