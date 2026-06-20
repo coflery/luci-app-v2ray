@@ -2245,16 +2245,17 @@ setup_transparent_proxy() {
 
 	rm -f "$FILE_V2RAY_DNSMASQ_CACHE"
 
-	local lan_devices lan_ipaddrs
+	local lan_devices lan_ipaddrs lan_ipaddrs6
 
 	if [ -n "$lan_ifaces" ]; then
 		. /lib/functions/network.sh
 
 		local lan
 		for lan in $lan_ifaces; do
-			local device ipaddrs ipaddr
+			local device ipaddrs ipaddr ipaddrs6 ipaddr6
 			network_get_device device "$lan"
 			network_get_ipaddrs ipaddrs "$lan"
+			network_get_ipaddrs6 ipaddrs6 "$lan"
 
 			if [ -n "$device" ]; then
 				if [ -n "$lan_devices" ]; then
@@ -2273,14 +2274,24 @@ setup_transparent_proxy() {
 					fi
 				done
 			fi
+
+			if [ -n "$ipaddrs6" ]; then
+				for ipaddr6 in $ipaddrs6; do
+					if [ -n "$lan_ipaddrs6" ]; then
+						lan_ipaddrs6="$ipaddr6"
+					else
+						lan_ipaddrs6="$lan_ipaddrs6 $ipaddr6"
+					fi
+				done
+			fi
 		done
 	fi
 
 	if [ "x$TRANSPARENT_PROXY_USE_TPROXY" = "x1" ]; then
 		_info "Use TProxy to setup nftables"
-		add_v2ray_tproxy_rules "$ext_args" "$lan_devices" "$lan_ipaddrs"
+		add_v2ray_tproxy_rules "$ext_args" "$lan_devices" "$lan_ipaddrs" "$lan_ipaddrs6"
 	else
-		add_v2ray_redirect_rules "$ext_args" "$lan_devices" "$lan_ipaddrs"
+		add_v2ray_redirect_rules "$ext_args" "$lan_devices" "$lan_ipaddrs" "$lan_ipaddrs6"
 	fi
 }
 
