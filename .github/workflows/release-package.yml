@@ -8,7 +8,7 @@ on:
 env:
   PACKAGE_NAME: luci-app-v2ray
   ARCH: "x86_64"
-  TAG: "x86-64-openwrt-23.05"
+  TAG: "x86-64-openwrt-25.12"
 
 jobs:
   frontend:
@@ -16,10 +16,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: '22.x'
 
@@ -33,7 +33,7 @@ jobs:
         run: yarn package
 
       - name: Upload frontend artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: frontend-package
           path: package/**
@@ -45,10 +45,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Download frontend package
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: frontend-package
           path: package/${{ env.PACKAGE_NAME }}
@@ -70,18 +70,22 @@ jobs:
 
       - name: Verify build output
         run: |
-          echo "Generated IPK files:"
-          ls -R bin/packages/${{ env.ARCH }} || echo "No IPK found"
+          echo "Generated packages:"
+          ls -R bin/packages/${{ env.ARCH }} || echo "No package found"
 
       - name: Update Archives
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ env.PACKAGE_NAME }}
-          path: bin/packages/${{ env.ARCH }}/action/*.ipk
+          path: |
+            bin/packages/${{ env.ARCH }}/action/*.apk
+            bin/packages/${{ env.ARCH }}/action/*.ipk
 
       - name: Release and Upload Assets
         uses: softprops/action-gh-release@v2
         with:
-          files: bin/packages/${{ env.ARCH }}/action/*.ipk
+          files: |
+            bin/packages/${{ env.ARCH }}/action/*.apk
+            bin/packages/${{ env.ARCH }}/action/*.ipk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
