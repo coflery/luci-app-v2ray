@@ -609,6 +609,8 @@ add_v2ray_tproxy_rules() {
 
 	cat <<-EOF >/tmp/tproxy_nftables.txt
 		table inet $NFTABLE {
+			set $nfset_dst_proxy_v4 { type ipv4_addr; flags interval; timeout 1h; }
+			set $nfset_dst_proxy_v6 { type ipv6_addr; flags interval; timeout 1h; }
 			chain prerouting {
 				type filter hook prerouting priority mangle; policy accept;
 				ip daddr != @$nfset_dst_proxy_v4 return
