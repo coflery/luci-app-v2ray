@@ -43,10 +43,11 @@ define Package/$(PKG_NAME)/postinst
 #!/bin/sh
 
 if [ -z "$${IPKG_INSTROOT}" ] ; then
-		( . /etc/uci-defaults/40_luci-v2ray ) && rm -f /etc/uci-defaults/40_luci-v2ray
+	( . /etc/uci-defaults/40_luci-v2ray ) && rm -f /etc/uci-defaults/40_luci-v2ray
 
 	rm -rf /tmp/luci-indexcache /tmp/luci-modulecache/
 	/etc/init.d/v2ray enable
+	/etc/init.d/v2ray start
 
 	killall -HUP rpcd 2>/dev/null
 fi

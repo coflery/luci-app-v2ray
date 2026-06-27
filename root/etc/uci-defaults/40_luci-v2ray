@@ -4,6 +4,8 @@
 # Licensed to the public under the MIT License.
 #
 
+[ -f /etc/config/v2ray ] && exit 0
+
 # v2ray main
 v2ray=$(uci -q get v2ray.main)
 if [ "x$v2ray" != "xv2ray" ] ; then
