@@ -6,12 +6,18 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-app-v2ray
-PKG_VERSION:=2.4.1
+PKG_VERSION:=2.0.0
 PKG_RELEASE:=1
 
 PKG_LICENSE:=MIT
 PKG_MAINTAINER:=Xingwang Liao <kuoruan@gmail.com>
 PKG_BUILD_DEPENDS:=luci-base/host
+
+PKG_FILE_MODES:=\
+	/etc/init.d/v2ray:0755 \
+	/etc/uci-defaults/40_luci-v2ray:0755 \
+	/usr/libexec/rpcd/luci.v2ray:0755 \
+	/usr/libexec/v2ray/v2ray_entry.sh:0755
 
 LUCI_TITLE:=LuCI support for v2ray
 LUCI_DEPENDS:=+jshn
@@ -37,20 +43,13 @@ define Package/$(PKG_NAME)/postinst
 #!/bin/sh
 
 if [ -z "$${IPKG_INSTROOT}" ] ; then
-	( . /etc/uci-defaults/40_luci-v2ray ) && rm -f /etc/uci-defaults/40_luci-v2ray
+		( . /etc/uci-defaults/40_luci-v2ray ) && rm -f /etc/uci-defaults/40_luci-v2ray
 
 	rm -rf /tmp/luci-indexcache /tmp/luci-modulecache/
+	/etc/init.d/v2ray enable
 
 	killall -HUP rpcd 2>/dev/null
 fi
-
-chmod 755 "$${IPKG_INSTROOT}/etc/init.d/v2ray" >/dev/null 2>&1
-chmod 755 "$${IPKG_INSTROOT}/etc/uci-defaults/40_luci-v2ray" >/dev/null 2>&1
-chmod 755 "$${IPKG_INSTROOT}/usr/libexec/rpcd/luci.v2ray" >/dev/null 2>&1
-chmod 755 "$${IPKG_INSTROOT}/usr/libexec/v2ray/v2ray_entry.sh" >/dev/null 2>&1
-ln -sf "../init.d/v2ray" \
-	"$${IPKG_INSTROOT}/etc/rc.d/S99v2ray" >/dev/null 2>&1
-
 exit 0
 endef
 
