@@ -6,7 +6,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-app-v2ray
-PKG_VERSION:=2.0.0
+PKG_VERSION:=2.4.1
 PKG_RELEASE:=1
 
 PKG_LICENSE:=MIT
@@ -45,6 +45,9 @@ if [ -z "$${IPKG_INSTROOT}" ] ; then
 fi
 
 chmod 755 "$${IPKG_INSTROOT}/etc/init.d/v2ray" >/dev/null 2>&1
+chmod 755 "$${IPKG_INSTROOT}/etc/uci-defaults/40_luci-v2ray" >/dev/null 2>&1
+chmod 755 "$${IPKG_INSTROOT}/usr/libexec/rpcd/luci.v2ray" >/dev/null 2>&1
+chmod 755 "$${IPKG_INSTROOT}/usr/libexec/v2ray/v2ray_entry.sh" >/dev/null 2>&1
 ln -sf "../init.d/v2ray" \
 	"$${IPKG_INSTROOT}/etc/rc.d/S99v2ray" >/dev/null 2>&1
 
