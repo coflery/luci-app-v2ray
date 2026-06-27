@@ -33,11 +33,28 @@ endef
 
 include $(TOPDIR)/feeds/luci/luci.mk
 
+define Package/$(PKG_NAME)/install
+	$(call LuCI/Install,$(1))
+
+	$(INSTALL_DIR) $(1)/etc/init.d
+	$(INSTALL_BIN) ./root/etc/init.d/v2ray $(1)/etc/init.d/v2ray
+
+	$(INSTALL_DIR) $(1)/etc/uci-defaults
+	$(INSTALL_BIN) ./root/etc/uci-defaults/40_luci-v2ray $(1)/etc/uci-defaults/40_luci-v2ray
+
+	$(INSTALL_DIR) $(1)/usr/libexec/rpcd
+	$(INSTALL_BIN) ./root/usr/libexec/rpcd/luci.v2ray $(1)/usr/libexec/rpcd/luci.v2ray
+
+	$(INSTALL_DIR) $(1)/usr/libexec/v2ray
+	$(INSTALL_BIN) ./root/usr/libexec/v2ray/v2ray_entry.sh $(1)/usr/libexec/v2ray/v2ray_entry.sh
+endef
+
 define Package/$(PKG_NAME)/postinst
 #!/bin/sh
 
 if [ -z "$${IPKG_INSTROOT}" ] ; then
-	( . /etc/uci-defaults/40_luci-v2ray ) && rm -f /etc/uci-defaults/40_luci-v2ray
+	[ -f "/etc/uci-defaults/40_luci-v2ray" ] && \
+		( . /etc/uci-defaults/40_luci-v2ray ) && rm -f /etc/uci-defaults/40_luci-v2ray
 
 	rm -rf /tmp/luci-indexcache /tmp/luci-modulecache/
 
@@ -45,6 +62,10 @@ if [ -z "$${IPKG_INSTROOT}" ] ; then
 fi
 
 chmod 755 "$${IPKG_INSTROOT}/etc/init.d/v2ray" >/dev/null 2>&1
+chmod 755 "$${IPKG_INSTROOT}/etc/uci-defaults/40_luci-v2ray" >/dev/null 2>&1
+chmod 755 "$${IPKG_INSTROOT}/usr/libexec/rpcd/luci.v2ray" >/dev/null 2>&1
+chmod 755 "$${IPKG_INSTROOT}/usr/libexec/v2ray/v2ray_entry.sh" >/dev/null 2>&1
+
 ln -sf "../init.d/v2ray" \
 	"$${IPKG_INSTROOT}/etc/rc.d/S99v2ray" >/dev/null 2>&1
 
